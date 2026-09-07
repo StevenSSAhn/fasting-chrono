@@ -1,0 +1,765 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="18:6 간헐적 단식 타이머. 경과 시간, 대사 단계, 섭취 창을 24시간 계측 띠 위에 함께 보여줍니다.">
+<meta name="theme-color" content="#F2F3F0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111820" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="공복">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<style>
+html{background:#F2F3F0;}
+@media (prefers-color-scheme: dark){ html{background:#111820;} }
+body{margin:0;}
+img{max-width:100%;}
+[hidden]{display:none !important;}
+</style>
+<title>공복 크로노미터</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@200;300;400;500;600&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<style>
+:root{
+  --ground:#F2F3F0;
+  --surface:#FFFFFF;
+  --sunken:#E7E9E5;
+  --ink:#1D2630;
+  --ink-2:#4A5563;
+  --ink-3:#7E8894;
+  --rule:#D5D9D4;
+  --rule-strong:#B6BCB6;
+  --verdigris:#2F7767;
+  --verdigris-soft:#CCE0DA;
+  --ember:#B45F1E;
+  --ember-soft:#F0DCC8;
+  --shadow:0 1px 2px rgba(29,38,48,.06), 0 8px 24px -12px rgba(29,38,48,.18);
+  --font-mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-kr:"IBM Plex Sans KR", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#111820;
+    --surface:#1A242F;
+    --sunken:#0C1218;
+    --ink:#E8EDEA;
+    --ink-2:#A7B2B5;
+    --ink-3:#6E7A82;
+    --rule:#28343F;
+    --rule-strong:#3C4A56;
+    --verdigris:#4FA894;
+    --verdigris-soft:#1E3B38;
+    --ember:#DB8340;
+    --ember-soft:#3A2A1B;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#111820;
+  --surface:#1A242F;
+  --sunken:#0C1218;
+  --ink:#E8EDEA;
+  --ink-2:#A7B2B5;
+  --ink-3:#6E7A82;
+  --rule:#28343F;
+  --rule-strong:#3C4A56;
+  --verdigris:#4FA894;
+  --verdigris-soft:#1E3B38;
+  --ember:#DB8340;
+  --ember-soft:#3A2A1B;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box;}
+body{
+  background:var(--ground);
+  color:var(--ink);
+  font-family:var(--font-kr);
+  font-size:15px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  padding:0 0 56px;
+}
+.wrap{
+  max-width:440px;
+  margin:0 auto;
+  padding:22px 20px 0;
+  display:flex;
+  flex-direction:column;
+  gap:26px;
+}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums;}
+.label{
+  font-family:var(--font-mono);
+  font-size:10.5px;
+  font-weight:500;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+}
+
+/* ---- masthead ---- */
+.masthead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;}
+.masthead h1{
+  margin:0;
+  font-family:var(--font-mono);
+  font-size:13px;
+  font-weight:600;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--ink-2);
+}
+.goalpick{display:flex;gap:0;border:1px solid var(--rule);border-radius:3px;overflow:hidden;}
+.goalpick button{
+  font-family:var(--font-mono);font-size:11px;font-weight:500;
+  padding:4px 8px;border:0;background:transparent;color:var(--ink-3);
+  cursor:pointer;line-height:1.4;
+}
+.goalpick button+button{border-left:1px solid var(--rule);}
+.goalpick button[aria-pressed="true"]{background:var(--ink);color:var(--ground);}
+
+/* ---- readout ---- */
+.readout{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;}
+.status{
+  display:inline-flex;align-items:center;gap:7px;
+  font-family:var(--font-mono);font-size:11px;font-weight:500;
+  letter-spacing:.16em;text-transform:uppercase;
+}
+.status .dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+.status.is-fasting{color:var(--verdigris);}
+.status.is-eating{color:var(--ember);}
+.status.is-idle{color:var(--ink-3);}
+.clock{
+  font-family:var(--font-mono);
+  font-weight:200;
+  font-size:clamp(50px,15.5vw,68px);
+  letter-spacing:-.035em;
+  line-height:1;
+  font-variant-numeric:tabular-nums;
+  color:var(--ink);
+}
+.clock.dim{color:var(--ink-3);}
+.clock .sec{font-size:.46em;font-weight:300;letter-spacing:0;color:var(--ink-3);margin-left:.1em;}
+.subline{font-size:13.5px;color:var(--ink-2);}
+.subline b{font-weight:600;color:var(--ink);font-family:var(--font-mono);font-variant-numeric:tabular-nums;}
+
+/* ---- 24h instrument band ---- */
+.instrument{display:flex;flex-direction:column;gap:7px;}
+.bandhead{position:relative;height:26px;}
+.bandhead .mark{position:absolute;top:0;display:flex;flex-direction:column;gap:1px;white-space:nowrap;}
+.bandhead .mark .cap{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);}
+.bandhead .mark .val{font-family:var(--font-mono);font-size:12px;font-weight:500;font-variant-numeric:tabular-nums;color:var(--ink-2);}
+.bandhead .mark.a{left:0;}
+.bandhead .mark.b{transform:translateX(-50%);text-align:center;align-items:center;}
+/* past ~55% the centred label runs into the right-hand one, so hang it off the tick instead */
+.bandhead .mark.b.shift{transform:translateX(-100%);text-align:right;align-items:flex-end;}
+.bandhead .mark.b .val{color:var(--verdigris);font-weight:600;}
+.bandhead .mark.c{right:0;text-align:right;align-items:flex-end;}
+
+.band{
+  position:relative;height:46px;border-radius:3px;overflow:hidden;
+  background:var(--sunken);border:1px solid var(--rule);
+}
+.seg{position:absolute;top:0;bottom:0;}
+.seg.fast{background:var(--verdigris-soft);}
+.seg.eat{background:var(--ember-soft);}
+.fill{position:absolute;top:0;bottom:0;left:0;background:var(--verdigris);}
+.fill.b{background:var(--ember);}
+.fill.b.over{background:var(--verdigris);opacity:.5;}
+.hair{position:absolute;top:0;bottom:0;width:1px;background:var(--rule-strong);opacity:.75;}
+.hair.goal{background:var(--ink-2);opacity:.55;width:1px;}
+.nowline{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);border-radius:2px;box-shadow:0 0 0 2px var(--ground);}
+.bandfoot{display:flex;justify-content:space-between;}
+.bandfoot span{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);}
+
+/* ---- actions ---- */
+.actions{display:flex;flex-direction:column;gap:10px;}
+.btn{
+  font-family:var(--font-kr);font-size:15px;font-weight:600;
+  padding:15px 18px;border-radius:4px;border:1px solid transparent;
+  cursor:pointer;width:100%;line-height:1.2;letter-spacing:.01em;
+  transition:transform .08s ease, filter .12s ease;
+}
+.btn:active{transform:translateY(1px);}
+.btn.primary{background:var(--verdigris);color:#fff;}
+.btn.stop{background:transparent;color:var(--ember);border-color:var(--ember);}
+.subactions{display:flex;gap:8px;}
+.btn.ghost{
+  flex:1;background:transparent;color:var(--ink-2);border:1px solid var(--rule);
+  font-size:12.5px;font-weight:500;padding:9px 10px;
+}
+:where(button,input,summary):focus-visible{outline:2px solid var(--verdigris);outline-offset:2px;}
+
+.editrow{display:none;gap:8px;align-items:center;}
+.editrow.open{display:flex;}
+.editrow input{
+  flex:1;min-width:0;font-family:var(--font-mono);font-size:13px;
+  padding:9px 10px;border:1px solid var(--rule);border-radius:4px;
+  background:var(--surface);color:var(--ink);
+}
+.editrow button{
+  font-family:var(--font-kr);font-size:12.5px;font-weight:600;padding:10px 13px;
+  border:0;border-radius:4px;background:var(--ink);color:var(--ground);cursor:pointer;
+}
+
+/* ---- stage ladder ---- */
+section{display:flex;flex-direction:column;gap:11px;}
+.stages{display:flex;flex-direction:column;}
+.stage{
+  display:grid;grid-template-columns:52px 1fr;gap:12px;
+  padding:11px 0 11px 11px;
+  border-top:1px solid var(--rule);
+  border-left:2px solid transparent;
+}
+.stage:last-child{border-bottom:1px solid var(--rule);}
+.stage .hrs{
+  font-family:var(--font-mono);font-size:11.5px;font-weight:500;
+  font-variant-numeric:tabular-nums;color:var(--ink-3);padding-top:2px;
+}
+.stage .nm{font-size:14px;font-weight:600;color:var(--ink-2);}
+.stage .ds{font-size:12.5px;color:var(--ink-3);line-height:1.5;}
+.stage.past .hrs,.stage.past .nm{color:var(--ink-3);}
+.stage.current{border-left-color:var(--verdigris);background:var(--verdigris-soft);}
+.stage.current .hrs{color:var(--verdigris);}
+.stage.current .nm{color:var(--ink);}
+.stage.current .ds{color:var(--ink-2);}
+.stage.future{opacity:.55;}
+
+/* ---- history ---- */
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:3px;overflow:hidden;}
+.stat{background:var(--surface);padding:11px 12px;display:flex;flex-direction:column;gap:2px;}
+.stat .v{font-family:var(--font-mono);font-size:19px;font-weight:400;font-variant-numeric:tabular-nums;color:var(--ink);line-height:1.15;}
+.stat .v small{font-size:11px;font-weight:500;color:var(--ink-3);margin-left:1px;}
+.stat .k{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);}
+
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;align-items:end;height:82px;}
+.day{display:flex;flex-direction:column;justify-content:flex-end;gap:5px;height:100%;}
+.day .col{width:100%;background:var(--sunken);border-radius:2px 2px 0 0;position:relative;min-height:3px;}
+.day .col i{position:absolute;left:0;right:0;bottom:0;background:var(--rule-strong);border-radius:2px 2px 0 0;display:block;}
+.day.hit .col i{background:var(--verdigris);}
+.day .d{font-family:var(--font-mono);font-size:9.5px;text-align:center;color:var(--ink-3);}
+.day.today .d{color:var(--ink);font-weight:600;}
+.goalline{position:relative;height:0;}
+.goalline hr{position:absolute;left:0;right:0;top:0;border:0;border-top:1px dashed var(--rule-strong);margin:0;}
+.goalline span{position:absolute;right:0;top:-14px;font-family:var(--font-mono);font-size:9px;letter-spacing:.08em;color:var(--ink-3);background:var(--ground);padding-left:4px;}
+
+.empty{font-size:13px;color:var(--ink-3);padding:14px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);}
+.log{display:flex;flex-direction:column;}
+.logrow{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 0;border-top:1px solid var(--rule);font-size:13px;}
+.logrow .when{color:var(--ink-3);font-family:var(--font-mono);font-size:11.5px;font-variant-numeric:tabular-nums;}
+.logrow .dur{font-family:var(--font-mono);font-size:13.5px;font-variant-numeric:tabular-nums;color:var(--ink-2);}
+.logrow.hit .dur{color:var(--verdigris);font-weight:500;}
+
+/* ---- footer ---- */
+footer{display:flex;flex-direction:column;gap:12px;padding-top:6px;border-top:1px solid var(--rule);}
+details summary{
+  cursor:pointer;font-family:var(--font-mono);font-size:10.5px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-3);list-style:none;
+}
+details summary::-webkit-details-marker{display:none;}
+details summary::before{content:"+ ";}
+details[open] summary::before{content:"− ";}
+details p{font-size:12.5px;color:var(--ink-3);line-height:1.65;margin:9px 0 0;}
+details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;padding-left:19px;}
+.note{font-size:11.5px;color:var(--ink-3);line-height:1.6;}
+.sync{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);}
+
+@media (prefers-reduced-motion: reduce){
+  *{transition:none !important;animation:none !important;}
+}
+
+.warn{
+  background:var(--ember-soft);border:1px solid var(--ember);
+  border-radius:4px;padding:12px 14px;font-size:13px;line-height:1.55;color:var(--ink);
+}
+.warn b{color:var(--ember);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <h1>공복 크로노미터</h1>
+    <div class="goalpick" id="goalpick" role="group" aria-label="목표 공복 시간"></div>
+  </div>
+
+  <div class="readout">
+    <div class="status" id="status"><span class="dot"></span><span id="statustext">대기 중</span></div>
+    <div class="clock" id="clock">00:00<span class="sec">00</span></div>
+    <div class="subline" id="subline"></div>
+  </div>
+
+  <div class="instrument">
+    <div class="bandhead">
+      <div class="mark a"><span class="cap">시작</span><span class="val" id="mk-start">—</span></div>
+      <div class="mark b" id="mk-goal-wrap"><span class="cap">공복 종료</span><span class="val" id="mk-goal">—</span></div>
+      <div class="mark c"><span class="cap">다음 공복</span><span class="val" id="mk-next">—</span></div>
+    </div>
+    <div class="band" id="band">
+      <div class="seg fast" id="seg-fast"></div>
+      <div class="seg eat" id="seg-eat"></div>
+      <div class="fill" id="fill-a"></div>
+      <div class="fill b" id="fill-b"></div>
+      <div id="hairs"></div>
+      <div class="nowline" id="nowmark"></div>
+    </div>
+    <div class="bandfoot"><span id="foot-l">24시간 띠</span><span id="foot-r">—</span></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn primary" id="mainbtn">공복 시작</button>
+    <div class="subactions" id="subactions"></div>
+    <div class="editrow" id="editrow">
+      <input type="datetime-local" id="editinput" aria-label="공복 시작 시각">
+      <button id="editsave">적용</button>
+    </div>
+  </div>
+
+  <section>
+    <div class="label">대사 단계</div>
+    <div class="stages" id="stages"></div>
+  </section>
+
+  <section>
+    <div class="label">기록</div>
+    <div class="stats">
+      <div class="stat"><span class="v" id="st-streak">0<small>일</small></span><span class="k">연속</span></div>
+      <div class="stat"><span class="v" id="st-total">0</span><span class="k">완료 횟수</span></div>
+      <div class="stat"><span class="v" id="st-avg">—</span><span class="k">최근 7일 평균</span></div>
+    </div>
+    <div class="goalline"><hr id="goalhr"><span id="goallabel">목표</span></div>
+    <div class="week" id="week"></div>
+    <div id="logwrap"></div>
+  </section>
+
+  <footer>
+    <details>
+      <summary>아이폰 홈 화면에 앱으로 설치하기</summary>
+      <ol>
+        <li>이 페이지를 아이폰 <b>사파리</b>로 엽니다.</li>
+        <li>아래 <b>공유</b> 버튼(↑) → <b>홈 화면에 추가</b>.</li>
+        <li>홈 화면 아이콘으로 열면 주소창 없이 전체화면으로 뜹니다.</li>
+      </ol>
+      <p>기록은 <b>이 기기 안에만</b> 저장됩니다. 폰마다 각자의 기록이 따로 쌓이니, 같은 링크를 여러 사람이 써도 서로 섞이지 않습니다.</p>
+    </details>
+    <details>
+      <summary>알림 설정</summary>
+      <p>웹앱이라 자체 푸시는 못 보냅니다. 위 <b>공복 종료</b> 시각을 아이폰 <b>시계 앱 → 알람</b>에 한 번 맞춰두면 매일 같은 시각이라 그대로 반복됩니다.</p>
+    </details>
+    <p class="note">단계 설명은 일반적으로 알려진 참고 정보이며 의학적 조언이 아닙니다. 지병이 있거나 약을 복용 중이라면 의사와 상의하세요.</p>
+    <p class="sync" id="syncstate">기록은 이 기기에 저장됩니다</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var H = 3600000, DAY = 24*H, KEY = "fastchrono.v1";
+
+  var STAGES = [
+    {h:0,  to:4,  nm:"소화·흡수",     ds:"방금 먹은 것을 쓰는 중입니다. 인슐린이 올라가 있습니다."},
+    {h:4,  to:8,  nm:"혈당 안정",     ds:"인슐린이 내려가고 저장해둔 에너지로 전환됩니다."},
+    {h:8,  to:12, nm:"글리코겐 고갈", ds:"간에 저장된 당이 바닥나기 시작합니다. 배고픔이 몰려오는 구간."},
+    {h:12, to:16, nm:"케토시스 진입", ds:"지방을 케톤으로 바꿔 쓰기 시작합니다. 허기가 오히려 잦아듭니다."},
+    {h:16, to:99, nm:"오토파지 구간", ds:"세포가 낡은 단백질을 재활용하는 활동이 늘어난다고 알려진 구간."}
+  ];
+  var DOW = ["일","월","화","수","목","금","토"];
+
+  /* ---------- state ---------- */
+  function blank(){ return {v:1, goalHours:18, startedAt:null, lastEndedAt:null, history:[], updatedAt:0}; }
+  var S = blank();
+
+  function load(){
+    try{
+      var raw = localStorage.getItem(KEY);
+      if(!raw) return blank();
+      var o = JSON.parse(raw);
+      var d = blank();
+      if(typeof o.goalHours === "number") d.goalHours = o.goalHours;
+      if(typeof o.startedAt === "number") d.startedAt = o.startedAt;
+      if(typeof o.lastEndedAt === "number") d.lastEndedAt = o.lastEndedAt;
+      if(Array.isArray(o.history)) d.history = o.history.filter(function(f){
+        return f && typeof f.start === "number" && typeof f.end === "number" && f.end > f.start;
+      }).slice(-200);
+      d.updatedAt = typeof o.updatedAt === "number" ? o.updatedAt : 0;
+      return d;
+    }catch(e){ return blank(); }
+  }
+
+  function persist(){
+    S.updatedAt = Date.now();
+    try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){}
+    render(); tick();
+  }
+
+  /* ---------- derived ---------- */
+  function goalMs(){ return S.goalHours * H; }
+  function windowMs(){ return (24 - S.goalHours) * H; }
+
+  function mode(){
+    if(S.startedAt) return "fasting";
+    if(S.lastEndedAt && Date.now() - S.lastEndedAt < windowMs()) return "eating";
+    return "idle";
+  }
+
+  function pad(n){ return (n < 10 ? "0" : "") + n; }
+
+  function hms(ms){
+    if(ms < 0) ms = 0;
+    var t = Math.floor(ms/1000);
+    return {h:Math.floor(t/3600), m:Math.floor(t%3600/60), s:t%60};
+  }
+
+  function clockOf(ts){
+    var d = new Date(ts);
+    var h = d.getHours(), ap = h < 12 ? "오전" : "오후";
+    var h12 = h % 12; if(h12 === 0) h12 = 12;
+    return ap + " " + h12 + ":" + pad(d.getMinutes());
+  }
+
+  function dayTag(ts){
+    var a = new Date(); a.setHours(0,0,0,0);
+    var b = new Date(ts); b.setHours(0,0,0,0);
+    var diff = Math.round((b - a)/DAY);
+    if(diff === 0) return "";
+    if(diff === 1) return "내일 ";
+    if(diff === -1) return "어제 ";
+    return DOW[b.getDay()] + "요일 ";
+  }
+
+  function durText(ms){
+    var t = hms(ms);
+    return t.h + "시간 " + pad(t.m) + "분";
+  }
+
+  function dateKey(ts){
+    var d = new Date(ts);
+    return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate());
+  }
+
+  function streak(){
+    var hit = {};
+    S.history.forEach(function(f){
+      if(f.end - f.start >= goalMs()) hit[dateKey(f.end)] = true;
+    });
+    var n = 0, cur = new Date(); cur.setHours(0,0,0,0);
+    if(!hit[dateKey(cur.getTime())]) cur = new Date(cur.getTime() - DAY);
+    while(hit[dateKey(cur.getTime())]){ n++; cur = new Date(cur.getTime() - DAY); }
+    return n;
+  }
+
+  /* ---------- render (structure) ---------- */
+  function render(){
+    var m = mode();
+
+    // goal picker
+    var gp = document.getElementById("goalpick");
+    gp.innerHTML = "";
+    [16,18,20].forEach(function(g){
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = g + ":" + (24-g);
+      b.setAttribute("aria-pressed", String(g === S.goalHours));
+      b.onclick = function(){ S.goalHours = g; persist(); };
+      gp.appendChild(b);
+    });
+
+    // main button
+    var mb = document.getElementById("mainbtn");
+    mb.className = "btn " + (m === "fasting" ? "stop" : "primary");
+    mb.textContent = m === "fasting" ? "공복 종료 — 지금 먹기" : "공복 시작";
+    mb.onclick = m === "fasting" ? endFast : function(){ startFast(Date.now()); };
+
+    // secondary actions
+    var sa = document.getElementById("subactions");
+    sa.innerHTML = "";
+    if(m === "fasting"){
+      addGhost(sa, "시작 시각 수정", function(){ openEdit(S.startedAt); });
+      addGhost(sa, "기록 없이 취소", function(){
+        if(confirm("이번 공복을 기록하지 않고 취소할까요?")){ S.startedAt = null; persist(); }
+      });
+    }else{
+      addGhost(sa, "1시간 전부터", function(){ startFast(Date.now() - H); });
+      addGhost(sa, "시작 시각 직접 입력", function(){ openEdit(Date.now()); });
+    }
+
+    renderStages();
+    renderHistory();
+  }
+
+  function addGhost(parent, text, fn){
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "btn ghost"; b.textContent = text; b.onclick = fn;
+    parent.appendChild(b);
+  }
+
+  var stageEls = [];
+  function renderStages(){
+    var box = document.getElementById("stages");
+    box.innerHTML = ""; stageEls = [];
+    STAGES.forEach(function(st){
+      var row = document.createElement("div");
+      row.className = "stage";
+      var hrs = st.h >= S.goalHours ? st.h + "h+" : (st.to >= S.goalHours ? st.h + "–" + S.goalHours + "h" : st.h + "–" + st.to + "h");
+      row.innerHTML = '<div class="hrs">' + hrs + '</div><div><div class="nm"></div><div class="ds"></div></div>';
+      row.querySelector(".nm").textContent = st.nm;
+      row.querySelector(".ds").textContent = st.ds;
+      box.appendChild(row);
+      stageEls.push(row);
+    });
+  }
+
+  function renderHistory(){
+    var g = goalMs();
+    var done = S.history.filter(function(f){ return f.end - f.start >= g; });
+    document.getElementById("st-streak").innerHTML = streak() + '<small>일</small>';
+    document.getElementById("st-total").textContent = done.length;
+
+    // last 7 local days, longest fast ending that day
+    var days = [], today = new Date(); today.setHours(0,0,0,0);
+    for(var i = 6; i >= 0; i--){
+      var d = new Date(today.getTime() - i*DAY);
+      days.push({ts:d.getTime(), key:dateKey(d.getTime()), dur:0});
+    }
+    S.history.forEach(function(f){
+      var k = dateKey(f.end);
+      days.forEach(function(d){ if(d.key === k) d.dur = Math.max(d.dur, f.end - f.start); });
+    });
+
+    var recent = days.filter(function(d){ return d.dur > 0; });
+    document.getElementById("st-avg").innerHTML = recent.length
+      ? (Math.round(recent.reduce(function(a,d){ return a + d.dur; }, 0)/recent.length/H*10)/10) + '<small>시간</small>'
+      : "—";
+
+    var max = Math.max(g, days.reduce(function(a,d){ return Math.max(a, d.dur); }, 0));
+    var wk = document.getElementById("week");
+    wk.innerHTML = "";
+    days.forEach(function(d, idx){
+      var el = document.createElement("div");
+      el.className = "day" + (d.dur >= g ? " hit" : "") + (idx === 6 ? " today" : "");
+      var pct = Math.round(d.dur/max*100);
+      el.innerHTML = '<div class="col"><i style="height:' + pct + '%"></i></div>' +
+                     '<div class="d">' + DOW[new Date(d.ts).getDay()] + '</div>';
+      wk.appendChild(el);
+    });
+    // dashed goal line, laid over the week chart's column area (63px tall,
+    // the 82px track minus the day-label row) and pushed down past the 11px gap
+    var COLS = 63, GAP = 11;
+    document.getElementById("goalhr").parentNode.style.transform =
+      "translateY(" + (GAP + COLS - Math.round(g/max*COLS)) + "px)";
+    document.getElementById("goallabel").textContent = S.goalHours + "시간";
+
+    var lw = document.getElementById("logwrap");
+    lw.innerHTML = "";
+    if(!S.history.length){
+      var e = document.createElement("div");
+      e.className = "empty";
+      e.textContent = "아직 기록이 없습니다. 첫 공복을 마치면 여기에 쌓입니다.";
+      lw.appendChild(e);
+      return;
+    }
+    var log = document.createElement("div");
+    log.className = "log";
+    S.history.slice(-6).reverse().forEach(function(f){
+      var d = f.end - f.start;
+      var row = document.createElement("div");
+      row.className = "logrow" + (d >= g ? " hit" : "");
+      var sd = new Date(f.start);
+      row.innerHTML = '<span class="when">' + (sd.getMonth()+1) + "/" + sd.getDate() + " " +
+        pad(sd.getHours()) + ":" + pad(sd.getMinutes()) + " → " +
+        pad(new Date(f.end).getHours()) + ":" + pad(new Date(f.end).getMinutes()) +
+        '</span><span class="dur">' + durText(d) + '</span>';
+      log.appendChild(row);
+    });
+    lw.appendChild(log);
+  }
+
+  /* ---------- tick (live values) ---------- */
+  function tick(){
+    var now = Date.now(), m = mode(), g = goalMs(), w = windowMs();
+    var anchor, elapsed;
+
+    var st = document.getElementById("status");
+    var stt = document.getElementById("statustext");
+    var ck = document.getElementById("clock");
+    var sub = document.getElementById("subline");
+
+    if(m === "fasting"){
+      anchor = S.startedAt;
+      elapsed = now - anchor;
+      var past = elapsed >= g;
+      st.className = "status is-fasting";
+      stt.textContent = past ? "목표 달성 · 연장 중" : "공복 진행 중";
+      ck.className = "clock";
+      var t = hms(elapsed);
+      ck.innerHTML = pad(t.h) + ":" + pad(t.m) + '<span class="sec">' + pad(t.s) + "</span>";
+      var left = g - elapsed;
+      sub.innerHTML = past
+        ? "목표보다 <b>" + durText(elapsed - g) + "</b> 더 유지 중"
+        : "<b>" + durText(left) + "</b> 남음 · " + dayTag(anchor+g) + "<b>" + clockOf(anchor + g) + "</b>에 해제";
+    }else if(m === "eating"){
+      anchor = S.lastEndedAt - g;
+      var leftEat = S.lastEndedAt + w - now;
+      st.className = "status is-eating";
+      stt.textContent = "섭취 창";
+      ck.className = "clock";
+      var te = hms(leftEat);
+      ck.innerHTML = pad(te.h) + ":" + pad(te.m) + '<span class="sec">' + pad(te.s) + "</span>";
+      sub.innerHTML = "먹을 수 있는 시간 남음 · 다음 공복 " + dayTag(S.lastEndedAt+w) + "<b>" + clockOf(S.lastEndedAt + w) + "</b>";
+    }else{
+      anchor = now;
+      st.className = "status is-idle";
+      stt.textContent = "대기 중";
+      ck.className = "clock dim";
+      ck.innerHTML = pad(S.goalHours) + ":00" + '<span class="sec">00</span>';
+      sub.innerHTML = "지금 시작하면 " + dayTag(now+g) + "<b>" + clockOf(now + g) + "</b>에 해제됩니다";
+    }
+
+    // ---- band ----
+    var goalPct = g/DAY*100;
+    var nowPct = Math.max(0, Math.min(100, (now - anchor)/DAY*100));
+    document.getElementById("seg-fast").style.cssText = "left:0;width:" + goalPct + "%";
+    document.getElementById("seg-eat").style.cssText = "left:" + goalPct + "%;width:" + (100-goalPct) + "%";
+
+    var fa = document.getElementById("fill-a"), fb = document.getElementById("fill-b");
+    var aW = m === "eating" ? goalPct : Math.min(nowPct, goalPct);
+    fa.style.width = aW + "%";
+    fa.style.opacity = m === "idle" ? "0" : "1";
+
+    if(m === "eating"){
+      fb.style.cssText = "left:" + goalPct + "%;width:" + Math.max(0, nowPct - goalPct) + "%";
+      fb.className = "fill b";
+    }else if(m === "fasting" && nowPct > goalPct){
+      fb.style.cssText = "left:" + goalPct + "%;width:" + (nowPct - goalPct) + "%";
+      fb.className = "fill b over";
+    }else{
+      fb.style.cssText = "width:0";
+    }
+
+    var hairs = document.getElementById("hairs");
+    var want = STAGES.filter(function(s){ return s.h > 0 && s.h < S.goalHours; })
+                     .map(function(s){ return s.h; }).join(",") + "|" + S.goalHours;
+    if(hairs.dataset.k !== want){
+      hairs.dataset.k = want;
+      hairs.innerHTML = "";
+      STAGES.forEach(function(s){
+        if(s.h <= 0 || s.h >= S.goalHours) return;
+        var el = document.createElement("div");
+        el.className = "hair";
+        el.style.left = (s.h/24*100) + "%";
+        hairs.appendChild(el);
+      });
+      var gh = document.createElement("div");
+      gh.className = "hair goal";
+      gh.style.left = goalPct + "%";
+      hairs.appendChild(gh);
+    }
+    document.getElementById("nowmark").style.left = "calc(" + nowPct + "% - 1px)";
+    document.getElementById("nowmark").style.opacity = m === "idle" ? "0" : "1";
+
+    document.getElementById("mk-start").textContent = clockOf(anchor);
+    document.getElementById("mk-goal").textContent = clockOf(anchor + g);
+    document.getElementById("mk-next").textContent = clockOf(anchor + DAY);
+    var gw = document.getElementById("mk-goal-wrap");
+    var crowded = goalPct > 55;
+    gw.classList.toggle("shift", crowded);
+    gw.style.left = crowded ? "calc(" + goalPct + "% - 10px)" : goalPct + "%";
+    document.getElementById("foot-l").textContent = m === "idle" ? "지금 시작할 경우 미리보기" : "24시간 주기";
+    document.getElementById("foot-r").textContent = S.goalHours + "시간 공복 / " + (24-S.goalHours) + "시간 섭취";
+
+    // ---- stage ladder highlight ----
+    var eh = m === "fasting" ? (now - S.startedAt)/H : -1;
+    stageEls.forEach(function(row, i){
+      var s = STAGES[i], next = STAGES[i+1];
+      var cls = "stage";
+      if(eh < 0) cls += " future";
+      else if(eh >= s.h && (!next || eh < next.h)) cls += " current";
+      else if(eh >= s.h) cls += " past";
+      else cls += " future";
+      if(row.className !== cls) row.className = cls;
+    });
+  }
+
+  /* ---------- actions ---------- */
+  function startFast(ts){
+    if(ts > Date.now()) ts = Date.now();
+    S.startedAt = ts;
+    persist();
+  }
+
+  function endFast(){
+    var now = Date.now(), d = now - S.startedAt;
+    if(d < 30*60000 && !confirm(durText(d) + "밖에 안 됐습니다. 그래도 기록할까요?")) return;
+    S.history.push({start:S.startedAt, end:now});
+    if(S.history.length > 200) S.history = S.history.slice(-200);
+    S.lastEndedAt = now;
+    S.startedAt = null;
+    persist();
+  }
+
+  function localInput(ts){
+    var d = new Date(ts - d0offset(ts));
+    return d.toISOString().slice(0,16);
+  }
+  function d0offset(ts){ return new Date(ts).getTimezoneOffset()*60000; }
+
+  function openEdit(ts){
+    var row = document.getElementById("editrow");
+    var inp = document.getElementById("editinput");
+    inp.value = localInput(ts);
+    row.classList.add("open");
+    inp.focus();
+  }
+  document.getElementById("editsave").onclick = function(){
+    var v = document.getElementById("editinput").value;
+    if(!v) return;
+    var ts = new Date(v).getTime();
+    if(isNaN(ts)) return;
+    if(ts > Date.now()) ts = Date.now();
+    if(Date.now() - ts > 48*H){ alert("48시간보다 이전 시각은 설정할 수 없습니다."); return; }
+    S.startedAt = ts;
+    document.getElementById("editrow").classList.remove("open");
+    persist();
+  };
+
+  /* ---------- boot ---------- */
+  S = load();
+  render(); tick();
+  setInterval(tick, 1000);
+  document.addEventListener("visibilitychange", function(){ if(!document.hidden){ render(); tick(); } });
+
+})();
+</script>
+<script>
+// A silent storage failure is exactly what lost the records before, so say it out loud.
+(function(){
+  var ok = false;
+  try{
+    localStorage.setItem("__fc_probe","1");
+    ok = localStorage.getItem("__fc_probe") === "1";
+    localStorage.removeItem("__fc_probe");
+  }catch(e){ ok = false; }
+  if(ok) return;
+  var wrap = document.querySelector(".wrap");
+  if(!wrap) return;
+  var el = document.createElement("div");
+  el.className = "warn";
+  el.innerHTML = "<b>기록이 저장되지 않습니다.</b> 이 브라우저가 저장소를 막고 있습니다. " +
+                 "개인정보 보호 브라우징 창이면 일반 창에서 열고, 그래도 같으면 설정 → 사파리 → " +
+                 "'모든 쿠키 차단'이 켜져 있는지 확인해 주세요.";
+  wrap.insertBefore(el, wrap.firstChild);
+})();
+
+// Offline shell, so the app opens with no signal.
+if("serviceWorker" in navigator){
+  window.addEventListener("load", function(){
+    navigator.serviceWorker.register("sw.js").catch(function(){});
+  });
+}
+</script>
+</body>
+</html>
