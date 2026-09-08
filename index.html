@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#F2F3F0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#111820" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="공복">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
@@ -85,12 +85,15 @@ body{
   font-size:15px;
   line-height:1.6;
   -webkit-font-smoothing:antialiased;
-  padding:0 0 56px;
+  padding:0 0 calc(56px + env(safe-area-inset-bottom));
 }
 .wrap{
   max-width:440px;
   margin:0 auto;
-  padding:22px 20px 0;
+  padding:calc(22px + env(safe-area-inset-top))
+          max(20px, env(safe-area-inset-right))
+          0
+          max(20px, env(safe-area-inset-left));
   display:flex;
   flex-direction:column;
   gap:26px;
@@ -325,7 +328,10 @@ section{display:flex;flex-direction:column;gap:11px;}
 
 /* ---- add-to-home-screen hint ---- */
 .a2hs{
-  position:fixed;left:12px;right:12px;bottom:14px;z-index:20;
+  position:fixed;z-index:20;
+  left:max(12px, env(safe-area-inset-left));
+  right:max(12px, env(safe-area-inset-right));
+  bottom:calc(14px + env(safe-area-inset-bottom));
   max-width:412px;margin:0 auto;
   background:var(--surface);border:1px solid var(--rule-strong);border-radius:8px;
   padding:13px 14px;box-shadow:var(--shadow);
@@ -343,7 +349,7 @@ section{display:flex;flex-direction:column;gap:11px;}
   width:12px;height:12px;background:var(--surface);
   border-right:1px solid var(--rule-strong);border-bottom:1px solid var(--rule-strong);
 }
-body.hinting{padding-bottom:126px;}
+body.hinting{padding-bottom:calc(126px + env(safe-area-inset-bottom));}
 
 /* ---- footer ---- */
 footer{display:flex;flex-direction:column;gap:12px;padding-top:6px;border-top:1px solid var(--rule);}
