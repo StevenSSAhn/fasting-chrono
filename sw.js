@@ -1,5 +1,5 @@
 // Offline shell. Bump CACHE when the app files change.
-var CACHE = "fastchrono-8";
+var CACHE = "fastchrono-9";
 var ASSETS = ["./", "./index.html", "./manifest.webmanifest",
               "./icon-180.png", "./icon-192.png", "./icon-512.png"];
 
