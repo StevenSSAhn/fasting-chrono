@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="18:6 간헐적 단식 타이머. 경과 시간, 대사 단계, 섭취 창을 24시간 계측 띠 위에 함께 보여줍니다.">
+<meta name="description" content="18:6 간헐적 단식 타이머. 경과 시간, 대사 단계, 섭취 창을 24시간 다이얼 위에 함께 보여줍니다.">
 <meta name="theme-color" content="#F2F3F0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#111820" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -35,6 +35,7 @@ img{max-width:100%;}
   --rule-strong:#B6BCB6;
   --verdigris:#2F7767;
   --verdigris-soft:#CCE0DA;
+  --verdigris-track:#A9C7BD;
   --ember:#B45F1E;
   --ember-soft:#F0DCC8;
   --shadow:0 1px 2px rgba(29,38,48,.06), 0 8px 24px -12px rgba(29,38,48,.18);
@@ -53,6 +54,7 @@ img{max-width:100%;}
     --rule-strong:#3C4A56;
     --verdigris:#4FA894;
     --verdigris-soft:#1E3B38;
+    --verdigris-track:#2F5750;
     --ember:#DB8340;
     --ember-soft:#3A2A1B;
     --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.7);
@@ -69,6 +71,7 @@ img{max-width:100%;}
   --rule-strong:#3C4A56;
   --verdigris:#4FA894;
   --verdigris-soft:#1E3B38;
+  --verdigris-track:#2F5750;
   --ember:#DB8340;
   --ember-soft:#3A2A1B;
   --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.7);
@@ -133,27 +136,26 @@ body{
 .d7.today .ring{border-color:var(--ink-2);}
 .d7.today.hit .ring{border-color:var(--verdigris);}
 
-/* ---- intake meters ---- */
-.meter{display:flex;flex-direction:column;gap:7px;padding:12px 0;border-top:1px solid var(--rule);}
-.meter:last-child{border-bottom:1px solid var(--rule);}
-.mhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
-.mname{font-size:14px;font-weight:600;color:var(--ink-2);}
-.mval{font-family:var(--font-mono);font-size:19px;font-weight:400;font-variant-numeric:tabular-nums;color:var(--ink);line-height:1.1;}
-.mval small{font-size:11.5px;font-weight:500;color:var(--ink-3);}
-.mbar{height:6px;border-radius:3px;background:var(--sunken);border:1px solid var(--rule);overflow:hidden;}
-.mbar i{display:block;height:100%;background:var(--ink-2);border-radius:2px;}
-.meter.done .mbar i{background:var(--verdigris);}
-.meter.done .mval{color:var(--verdigris);}
-.mact{display:flex;gap:6px;align-items:center;}
+/* ---- intake gauges ---- */
+.gauges{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.gauge{display:flex;flex-direction:column;align-items:center;gap:9px;}
+.gring{position:relative;width:100%;max-width:118px;aspect-ratio:1;}
+.gring svg{width:100%;height:100%;display:block;}
+.gface{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;}
+.gv{font-family:var(--font-mono);font-size:21px;font-weight:400;font-variant-numeric:tabular-nums;color:var(--ink);line-height:1.05;}
+.gt{font-family:var(--font-mono);font-size:9.5px;font-variant-numeric:tabular-nums;color:var(--ink-3);}
+.gauge.done .gv{color:var(--verdigris);}
+.gname{font-size:13px;font-weight:600;color:var(--ink-2);}
+.gbtns{display:flex;gap:5px;width:100%;}
 .mbtn{
-  font-family:var(--font-mono);font-size:12px;font-weight:500;
-  padding:8px 0;flex:1;border:1px solid var(--rule);border-radius:4px;
+  font-family:var(--font-mono);font-size:11.5px;font-weight:500;
+  padding:8px 0;flex:1;min-width:0;border:1px solid var(--rule);border-radius:4px;
   background:transparent;color:var(--ink-2);cursor:pointer;line-height:1.3;
 }
 .mbtn.wide{font-family:var(--font-kr);font-weight:600;}
-.mact input{
-  flex:1.2;min-width:0;font-family:var(--font-mono);font-size:13px;
-  font-variant-numeric:tabular-nums;padding:8px 10px;text-align:center;
+.gbtns input{
+  flex:1;min-width:0;font-family:var(--font-mono);font-size:12.5px;
+  font-variant-numeric:tabular-nums;padding:8px 4px;text-align:center;
   border:1px solid var(--rule);border-radius:4px;background:var(--surface);color:var(--ink);
 }
 
@@ -177,22 +179,11 @@ body{
   background:var(--surface);color:var(--ink);width:100%;
 }
 
-/* ---- readout ---- */
-.readout{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;}
-.status{
-  display:inline-flex;align-items:center;gap:7px;
-  font-family:var(--font-mono);font-size:11px;font-weight:500;
-  letter-spacing:.16em;text-transform:uppercase;
-}
-.status .dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
-.status.is-fasting{color:var(--verdigris);}
-.status.is-eating{color:var(--ember);}
-.status.is-idle{color:var(--ink-3);}
-.status .pct{color:var(--ink-3);letter-spacing:.08em;}
+/* ---- dial face readout ---- */
 .clock{
   font-family:var(--font-mono);
   font-weight:200;
-  font-size:clamp(50px,15.5vw,68px);
+  font-size:clamp(34px,10.5vw,44px);
   letter-spacing:-.035em;
   line-height:1;
   font-variant-numeric:tabular-nums;
@@ -200,37 +191,34 @@ body{
 }
 .clock.dim{color:var(--ink-3);}
 .clock .sec{font-size:.46em;font-weight:300;letter-spacing:0;color:var(--ink-3);margin-left:.1em;}
-.subline{font-size:13.5px;color:var(--ink-2);}
-.subline b{font-weight:600;color:var(--ink);font-family:var(--font-mono);font-variant-numeric:tabular-nums;}
 
-/* ---- 24h instrument band ---- */
-.instrument{display:flex;flex-direction:column;gap:7px;}
-.bandhead{position:relative;height:26px;}
-.bandhead .mark{position:absolute;top:0;display:flex;flex-direction:column;gap:1px;white-space:nowrap;}
-.bandhead .mark .cap{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);}
-.bandhead .mark .val{font-family:var(--font-mono);font-size:12px;font-weight:500;font-variant-numeric:tabular-nums;color:var(--ink-2);}
-.bandhead .mark.a{left:0;}
-.bandhead .mark.b{transform:translateX(-50%);text-align:center;align-items:center;}
-/* past ~55% the centred label runs into the right-hand one, so hang it off the tick instead */
-.bandhead .mark.b.shift{transform:translateX(-100%);text-align:right;align-items:flex-end;}
-.bandhead .mark.b .val{color:var(--verdigris);font-weight:600;}
-.bandhead .mark.c{right:0;text-align:right;align-items:flex-end;}
-
-.band{
-  position:relative;height:46px;border-radius:3px;overflow:hidden;
-  background:var(--sunken);border:1px solid var(--rule);
+/* ---- 24h dial ---- */
+.dialwrap{position:relative;width:min(298px,78vw);margin:2px auto 0;aspect-ratio:1;}
+.dial{width:100%;height:100%;display:block;overflow:visible;}
+.dialface{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:11px;pointer-events:none;
 }
-.seg{position:absolute;top:0;bottom:0;}
-.seg.fast{background:var(--verdigris-soft);}
-.seg.eat{background:var(--ember-soft);}
-.fill{position:absolute;top:0;bottom:0;left:0;background:var(--verdigris);}
-.fill.b{background:var(--ember);}
-.fill.b.over{background:var(--verdigris);opacity:.5;}
-.hair{position:absolute;top:0;bottom:0;width:1px;background:var(--rule-strong);opacity:.75;}
-.hair.goal{background:var(--ink-2);opacity:.55;width:1px;}
-.nowline{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);border-radius:2px;box-shadow:0 0 0 2px var(--ground);}
-.bandfoot{display:flex;justify-content:space-between;}
-.bandfoot span{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);}
+.pill{
+  display:inline-flex;align-items:center;gap:7px;padding:5px 13px;border-radius:999px;
+  border:1px solid var(--rule-strong);font-family:var(--font-mono);font-size:10.5px;
+  font-weight:500;letter-spacing:.11em;color:var(--ink-3);white-space:nowrap;
+}
+.pill .pd{width:6px;height:6px;border-radius:50%;background:currentColor;flex:none;}
+.pill.is-fasting{border-color:var(--verdigris);color:var(--verdigris);}
+.pill.is-eating{border-color:var(--ember);color:var(--ember);}
+
+.chips{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.chip{
+  border:1px solid var(--rule);border-radius:4px;padding:9px 12px;
+  display:flex;flex-direction:column;gap:2px;min-width:0;
+}
+.chip .ck{font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);}
+.chip .cv{
+  font-family:var(--font-mono);font-size:14px;font-weight:500;
+  font-variant-numeric:tabular-nums;color:var(--ink);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;
+}
 
 /* ---- actions ---- */
 .actions{display:flex;flex-direction:column;gap:10px;}
@@ -370,27 +358,26 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
 
   <div class="week7" id="week7" aria-label="최근 7일 목표 달성"></div>
 
-  <div class="readout">
-    <div class="status" id="status"><span class="dot"></span><span id="statustext">대기 중</span><span class="pct" id="statuspct"></span></div>
-    <div class="clock" id="clock">00:00<span class="sec">00</span></div>
-    <div class="subline" id="subline"></div>
+  <div class="dialwrap">
+    <svg class="dial" viewBox="0 0 200 200" aria-hidden="true">
+      <g transform="rotate(-90 100 100)" fill="none">
+        <circle id="arc-fast" cx="100" cy="100" r="78" stroke="var(--verdigris-track)" stroke-width="13"/>
+        <circle id="arc-eat"  cx="100" cy="100" r="78" stroke="var(--ember-soft)"     stroke-width="13"/>
+        <circle id="arc-fill" cx="100" cy="100" r="78" stroke="var(--verdigris)"      stroke-width="13" stroke-linecap="butt"/>
+        <circle id="arc-fil2" cx="100" cy="100" r="78" stroke="var(--ember)"          stroke-width="13" stroke-linecap="butt"/>
+        <g id="dial-ticks" stroke="var(--rule-strong)" stroke-width="1.5"></g>
+      </g>
+      <circle id="dial-now" cx="100" cy="22" r="5.5" fill="var(--ink)" stroke="var(--ground)" stroke-width="2.5"/>
+    </svg>
+    <div class="dialface">
+      <div class="clock" id="clock">00:00<span class="sec">00</span></div>
+      <div class="pill" id="stagepill"><span class="pd"></span><span id="stagepill-text">대기 중</span></div>
+    </div>
   </div>
 
-  <div class="instrument">
-    <div class="bandhead">
-      <div class="mark a"><span class="cap">시작</span><span class="val" id="mk-start">—</span></div>
-      <div class="mark b" id="mk-goal-wrap"><span class="cap">공복 종료</span><span class="val" id="mk-goal">—</span></div>
-      <div class="mark c"><span class="cap">다음 공복</span><span class="val" id="mk-next">—</span></div>
-    </div>
-    <div class="band" id="band">
-      <div class="seg fast" id="seg-fast"></div>
-      <div class="seg eat" id="seg-eat"></div>
-      <div class="fill" id="fill-a"></div>
-      <div class="fill b" id="fill-b"></div>
-      <div id="hairs"></div>
-      <div class="nowline" id="nowmark"></div>
-    </div>
-    <div class="bandfoot"><span id="foot-l">24시간 띠</span><span id="foot-r">—</span></div>
+  <div class="chips">
+    <div class="chip"><span class="ck" id="chip-a-k">시작</span><span class="cv" id="chip-a-v">—</span></div>
+    <div class="chip"><span class="ck" id="chip-b-k">해제</span><span class="cv" id="chip-b-v">—</span></div>
   </div>
 
   <div class="actions">
@@ -404,30 +391,38 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
 
   <section>
     <div class="label">오늘 섭취</div>
-    <div class="meter" id="m-water">
-      <div class="mhead"><span class="mname">물</span><span class="mval" id="water-val">—</span></div>
-      <div class="mbar"><i id="water-bar"></i></div>
-      <div class="mact">
-        <button class="mbtn" id="water-minus" aria-label="물 250 밀리리터 빼기">−250</button>
-        <button class="mbtn" id="water-p250" aria-label="물 250 밀리리터 더하기">+250</button>
-        <button class="mbtn" id="water-p500" aria-label="물 500 밀리리터 더하기">+500</button>
+    <div class="gauges">
+      <div class="gauge" id="m-water">
+        <div class="gring">
+          <svg viewBox="0 0 100 100"><g transform="rotate(-90 50 50)" fill="none">
+            <circle cx="50" cy="50" r="42" stroke="var(--sunken)" stroke-width="9"/>
+            <circle id="water-arc" cx="50" cy="50" r="42" stroke="var(--ink-2)" stroke-width="9" stroke-linecap="round"/>
+          </g></svg>
+          <div class="gface"><span class="gv" id="water-val">0</span><span class="gt" id="water-goal">—</span></div>
+        </div>
+        <span class="gname">물</span>
+        <div class="gbtns">
+          <button class="mbtn" id="water-minus" aria-label="물 250 밀리리터 빼기">−250</button>
+          <button class="mbtn" id="water-p250" aria-label="물 250 밀리리터 더하기">+250</button>
+          <button class="mbtn" id="water-p500" aria-label="물 500 밀리리터 더하기">+500</button>
+        </div>
+      </div>
+      <div class="gauge" id="m-protein">
+        <div class="gring">
+          <svg viewBox="0 0 100 100"><g transform="rotate(-90 50 50)" fill="none">
+            <circle cx="50" cy="50" r="42" stroke="var(--sunken)" stroke-width="9"/>
+            <circle id="prot-arc" cx="50" cy="50" r="42" stroke="var(--ink-2)" stroke-width="9" stroke-linecap="round"/>
+          </g></svg>
+          <div class="gface"><span class="gv" id="prot-val">0</span><span class="gt" id="prot-goal">—</span></div>
+        </div>
+        <span class="gname">단백질</span>
+        <div class="gbtns">
+          <input type="number" id="prot-input" step="1" min="1" max="400" inputmode="numeric" placeholder="g" aria-label="단백질 그램">
+          <button class="mbtn wide" id="prot-add">추가</button>
+          <button class="mbtn" id="prot-undo" aria-label="단백질 마지막 기록 되돌리기">↺</button>
+        </div>
       </div>
     </div>
-    <div class="meter" id="m-protein">
-      <div class="mhead"><span class="mname">단백질</span><span class="mval" id="prot-val">—</span></div>
-      <div class="mbar"><i id="prot-bar"></i></div>
-      <div class="mact">
-        <input type="number" id="prot-input" step="1" min="1" max="400" inputmode="numeric"
-               placeholder="그램" aria-label="단백질 그램">
-        <button class="mbtn wide" id="prot-add">추가</button>
-        <button class="mbtn" id="prot-undo">되돌리기</button>
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <div class="label">대사 단계</div>
-    <div class="stages" id="stages"></div>
   </section>
 
   <section>
@@ -464,6 +459,10 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
   </section>
 
   <footer>
+    <details>
+      <summary>대사 단계 설명</summary>
+      <div class="stages" id="stages"></div>
+    </details>
     <details>
       <summary>목표치 설정</summary>
       <div class="goals">
@@ -598,6 +597,28 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
     return n;
   }
 
+  /* ---------- dial geometry ---------- */
+  var DC = 2*Math.PI*78;   // dial circumference
+
+  // Draws the slice [from, to) of one 24h revolution. The group is rotated -90deg,
+  // so fraction 0 sits at the top of the face.
+  function setArc(el, from, to){
+    var len = Math.max(0, to - from)*DC;
+    el.setAttribute("stroke-dasharray", len + " " + (DC - len + 1));
+    el.setAttribute("stroke-dashoffset", (-from*DC).toFixed(2));
+  }
+
+  function renderTicks(){
+    var box = document.getElementById("dial-ticks"), out = "";
+    STAGES.forEach(function(st){
+      if(st.h <= 0 || st.h >= S.goalHours) return;
+      var a = st.h/24*2*Math.PI;
+      out += '<line x1="' + (100+86*Math.cos(a)).toFixed(2) + '" y1="' + (100+86*Math.sin(a)).toFixed(2) +
+             '" x2="' + (100+93*Math.cos(a)).toFixed(2) + '" y2="' + (100+93*Math.sin(a)).toFixed(2) + '"/>';
+    });
+    box.innerHTML = out;
+  }
+
   /* ---------- render (structure) ---------- */
   function render(){
     var m = mode();
@@ -638,8 +659,9 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
     if(document.activeElement !== gwEl) gwEl.value = S.waterGoal;
     if(document.activeElement !== gpEl) gpEl.value = S.proteinGoal;
 
+    renderTicks();
     renderWeek7();
-    renderMeters();
+    renderGauges();
     renderStages();
     renderHistory();
     renderWeight();
@@ -684,18 +706,24 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
     }
   }
 
-  function renderMeters(){
-    function paint(box, valEl, barEl, now, goal, unit, fmt){
-      var pct = goal > 0 ? Math.min(100, now/goal*100) : 0;
-      valEl.innerHTML = fmt(now) + '<small> / ' + fmt(goal) + ' ' + unit + '</small>';
-      barEl.style.width = pct + "%";
-      box.classList.toggle("done", now >= goal && goal > 0);
+  var GC = 2*Math.PI*42;   // gauge circumference
+
+  function renderGauges(){
+    function paint(box, valEl, goalEl, arcEl, now, goal, unit){
+      var frac = goal > 0 ? Math.min(1, now/goal) : 0;
+      valEl.textContent = now.toLocaleString("ko-KR");
+      goalEl.textContent = "/ " + goal.toLocaleString("ko-KR") + unit;
+      arcEl.setAttribute("stroke-dasharray", (frac*GC) + " " + GC);
+      var done = goal > 0 && now >= goal;
+      arcEl.setAttribute("stroke", done ? "var(--verdigris)" : "var(--ink-2)");
+      box.classList.toggle("done", done);
     }
-    var kg = function(n){ return n.toLocaleString("ko-KR"); };
     paint(document.getElementById("m-water"), document.getElementById("water-val"),
-          document.getElementById("water-bar"), todaySum("water"), S.waterGoal, "ml", kg);
+          document.getElementById("water-goal"), document.getElementById("water-arc"),
+          todaySum("water"), S.waterGoal, "ml");
     paint(document.getElementById("m-protein"), document.getElementById("prot-val"),
-          document.getElementById("prot-bar"), todaySum("protein"), S.proteinGoal, "g", kg);
+          document.getElementById("prot-goal"), document.getElementById("prot-arc"),
+          todaySum("protein"), S.proteinGoal, "g");
   }
 
   /* ---------- week at a glance ---------- */
@@ -853,7 +881,7 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
       '<path d="' + pathFor(ma) + '" fill="none" stroke="var(--verdigris)" stroke-width="2" ' +
         'stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>';
 
-    left.textContent = "얇은 선 일별 · 굵은 선 7일 평균";
+    left.textContent = "최근 30일";
     right.textContent = cur != null ? "7일 평균 " + cur.toFixed(1) + "kg" : "최근 30일";
   }
 
@@ -928,20 +956,6 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
       lw.appendChild(e);
       return;
     }
-    var log = document.createElement("div");
-    log.className = "log";
-    S.history.slice(-6).reverse().forEach(function(f){
-      var d = f.end - f.start;
-      var row = document.createElement("div");
-      row.className = "logrow" + (d >= g ? " hit" : "");
-      var sd = new Date(f.start);
-      row.innerHTML = '<span class="when">' + (sd.getMonth()+1) + "/" + sd.getDate() + " " +
-        pad(sd.getHours()) + ":" + pad(sd.getMinutes()) + " → " +
-        pad(new Date(f.end).getHours()) + ":" + pad(new Date(f.end).getMinutes()) +
-        '</span><span class="dur">' + durText(d) + '</span>';
-      log.appendChild(row);
-    });
-    lw.appendChild(log);
   }
 
   /* ---------- tick (live values) ---------- */
@@ -949,97 +963,67 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
     var now = Date.now(), m = mode(), g = goalMs(), w = windowMs();
     var anchor, elapsed;
 
-    var st = document.getElementById("status");
-    var stt = document.getElementById("statustext");
-    var ck = document.getElementById("clock");
-    var sub = document.getElementById("subline");
-    var pctEl = document.getElementById("statuspct");
+    var ck    = document.getElementById("clock");
+    var pill  = document.getElementById("stagepill");
+    var pillT = document.getElementById("stagepill-text");
+    var ak = document.getElementById("chip-a-k"), av = document.getElementById("chip-a-v");
+    var bk = document.getElementById("chip-b-k"), bv = document.getElementById("chip-b-v");
 
     if(m === "fasting"){
       anchor = S.startedAt;
       elapsed = now - anchor;
-      var past = elapsed >= g;
-      st.className = "status is-fasting";
-      stt.textContent = past ? "목표 달성 · 연장 중" : "공복 진행 중";
-      pctEl.textContent = "· " + Math.floor(elapsed/g*100) + "%";
-      ck.className = "clock";
       var t = hms(elapsed);
+      ck.className = "clock";
       ck.innerHTML = pad(t.h) + ":" + pad(t.m) + '<span class="sec">' + pad(t.s) + "</span>";
-      var left = g - elapsed;
-      sub.innerHTML = past
-        ? "목표보다 <b>" + durText(elapsed - g) + "</b> 더 유지 중"
-        : "<b>" + durText(left) + "</b> 남음 · " + dayTag(anchor+g) + "<b>" + clockOf(anchor + g) + "</b>에 해제";
+      var eh = elapsed/H, cur = STAGES[0];
+      STAGES.forEach(function(x){ if(eh >= x.h) cur = x; });
+      pill.className = "pill is-fasting";
+      pillT.textContent = (elapsed >= g ? "목표 달성" : cur.nm) + " · " + Math.floor(elapsed/g*100) + "%";
+      ak.textContent = "시작";  av.textContent = dayTag(anchor) + clockOf(anchor);
+      bk.textContent = "해제";  bv.textContent = dayTag(anchor+g) + clockOf(anchor+g);
     }else if(m === "eating"){
       anchor = S.lastEndedAt - g;
-      var leftEat = S.lastEndedAt + w - now;
-      st.className = "status is-eating";
-      stt.textContent = "섭취 창";
-      pctEl.textContent = "";
+      var te = hms(S.lastEndedAt + w - now);
       ck.className = "clock";
-      var te = hms(leftEat);
       ck.innerHTML = pad(te.h) + ":" + pad(te.m) + '<span class="sec">' + pad(te.s) + "</span>";
-      sub.innerHTML = "먹을 수 있는 시간 남음 · 다음 공복 " + dayTag(S.lastEndedAt+w) + "<b>" + clockOf(S.lastEndedAt + w) + "</b>";
+      pill.className = "pill is-eating";
+      pillT.textContent = "섭취 창";
+      ak.textContent = "섭취 종료"; av.textContent = dayTag(S.lastEndedAt+w) + clockOf(S.lastEndedAt+w);
+      bk.textContent = "다음 해제"; bv.textContent = dayTag(S.lastEndedAt+w+g) + clockOf(S.lastEndedAt+w+g);
     }else{
       anchor = now;
-      st.className = "status is-idle";
-      stt.textContent = "대기 중";
-      pctEl.textContent = "";
       ck.className = "clock dim";
       ck.innerHTML = pad(S.goalHours) + ":00" + '<span class="sec">00</span>';
-      sub.innerHTML = "지금 시작하면 " + dayTag(now+g) + "<b>" + clockOf(now + g) + "</b>에 해제됩니다";
+      pill.className = "pill";
+      pillT.textContent = "대기 중";
+      ak.textContent = "지금 시작"; av.textContent = clockOf(now);
+      bk.textContent = "해제 예정"; bv.textContent = dayTag(now+g) + clockOf(now+g);
     }
 
-    // ---- band ----
-    var goalPct = g/DAY*100;
-    var nowPct = Math.max(0, Math.min(100, (now - anchor)/DAY*100));
-    document.getElementById("seg-fast").style.cssText = "left:0;width:" + goalPct + "%";
-    document.getElementById("seg-eat").style.cssText = "left:" + goalPct + "%;width:" + (100-goalPct) + "%";
+    // ---- dial: one 24h revolution, fast arc then eating arc ----
+    var goalFrac = g/DAY;
+    var nowFrac = Math.max(0, Math.min(1, (now - anchor)/DAY));
+    setArc(document.getElementById("arc-fast"), 0, goalFrac);
+    setArc(document.getElementById("arc-eat"), goalFrac, 1);
+    var aEnd = m === "eating" ? goalFrac : Math.min(nowFrac, goalFrac);
+    setArc(document.getElementById("arc-fill"), 0, m === "idle" ? 0 : aEnd);
 
-    var fa = document.getElementById("fill-a"), fb = document.getElementById("fill-b");
-    var aW = m === "eating" ? goalPct : Math.min(nowPct, goalPct);
-    fa.style.width = aW + "%";
-    fa.style.opacity = m === "idle" ? "0" : "1";
-
+    var f2 = document.getElementById("arc-fil2");
     if(m === "eating"){
-      fb.style.cssText = "left:" + goalPct + "%;width:" + Math.max(0, nowPct - goalPct) + "%";
-      fb.className = "fill b";
-    }else if(m === "fasting" && nowPct > goalPct){
-      fb.style.cssText = "left:" + goalPct + "%;width:" + (nowPct - goalPct) + "%";
-      fb.className = "fill b over";
+      setArc(f2, goalFrac, nowFrac);
+      f2.setAttribute("stroke", "var(--ember)"); f2.setAttribute("opacity", "1");
+    }else if(m === "fasting" && nowFrac > goalFrac){
+      setArc(f2, goalFrac, nowFrac);
+      f2.setAttribute("stroke", "var(--verdigris)"); f2.setAttribute("opacity", "0.5");
     }else{
-      fb.style.cssText = "width:0";
+      setArc(f2, 0, 0);
     }
 
-    var hairs = document.getElementById("hairs");
-    var want = STAGES.filter(function(s){ return s.h > 0 && s.h < S.goalHours; })
-                     .map(function(s){ return s.h; }).join(",") + "|" + S.goalHours;
-    if(hairs.dataset.k !== want){
-      hairs.dataset.k = want;
-      hairs.innerHTML = "";
-      STAGES.forEach(function(s){
-        if(s.h <= 0 || s.h >= S.goalHours) return;
-        var el = document.createElement("div");
-        el.className = "hair";
-        el.style.left = (s.h/24*100) + "%";
-        hairs.appendChild(el);
-      });
-      var gh = document.createElement("div");
-      gh.className = "hair goal";
-      gh.style.left = goalPct + "%";
-      hairs.appendChild(gh);
-    }
-    document.getElementById("nowmark").style.left = "calc(" + nowPct + "% - 1px)";
-    document.getElementById("nowmark").style.opacity = m === "idle" ? "0" : "1";
-
-    document.getElementById("mk-start").textContent = clockOf(anchor);
-    document.getElementById("mk-goal").textContent = clockOf(anchor + g);
-    document.getElementById("mk-next").textContent = clockOf(anchor + DAY);
-    var gw = document.getElementById("mk-goal-wrap");
-    var crowded = goalPct > 55;
-    gw.classList.toggle("shift", crowded);
-    gw.style.left = crowded ? "calc(" + goalPct + "% - 10px)" : goalPct + "%";
-    document.getElementById("foot-l").textContent = m === "idle" ? "지금 시작할 경우 미리보기" : "24시간 주기";
-    document.getElementById("foot-r").textContent = S.goalHours + "시간 공복 / " + (24-S.goalHours) + "시간 섭취";
+    var dot = document.getElementById("dial-now");
+    var ang = nowFrac*2*Math.PI - Math.PI/2;
+    dot.setAttribute("cx", (100 + 78*Math.cos(ang)).toFixed(2));
+    dot.setAttribute("cy", (100 + 78*Math.sin(ang)).toFixed(2));
+    dot.setAttribute("opacity", m === "idle" ? "0" : "1");
 
     // ---- stage ladder highlight ----
     var eh = m === "fasting" ? (now - S.startedAt)/H : -1;
