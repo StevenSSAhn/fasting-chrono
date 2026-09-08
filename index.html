@@ -138,6 +138,7 @@ body{
 .d7.today .lab{color:var(--ink);font-weight:600;}
 .d7.today .ring{border-color:var(--ink-2);}
 .d7.today.hit .ring{border-color:var(--verdigris);}
+.d7.future{opacity:.35;}
 
 /* ---- intake gauges ---- */
 .gauges{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
@@ -767,14 +768,18 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
       var tk = dateKey(Date.now()), live = Date.now() - S.startedAt;
       if(!best[tk] || live > best[tk]) best[tk] = live;
     }
+    // calendar week, Sunday first — not a rolling window
     var today = new Date(); today.setHours(0,0,0,0);
+    var sunday = today.getTime() - today.getDay()*DAY;
     box.innerHTML = "";
-    for(var i = 6; i >= 0; i--){
-      var ts = today.getTime() - i*DAY, k = dateKey(ts), d = best[k] || 0;
+    for(var i = 0; i < 7; i++){
+      var ts = sunday + i*DAY, k = dateKey(ts), d = best[k] || 0;
+      var isToday = ts === today.getTime(), isFuture = ts > today.getTime();
       var el = document.createElement("div");
-      el.className = "d7" + (d >= g ? " hit" : (d > 0 ? " part" : "")) + (i === 0 ? " today" : "");
+      el.className = "d7" + (d >= g ? " hit" : (d > 0 ? " part" : "")) +
+                     (isToday ? " today" : "") + (isFuture ? " future" : "");
       el.innerHTML = '<span class="lab">' + DOW[new Date(ts).getDay()] + '</span><span class="ring"></span>';
-      el.title = d ? durText(d) : "기록 없음";
+      el.title = isFuture ? "아직 오지 않은 날" : (d ? durText(d) : "기록 없음");
       box.appendChild(el);
     }
   }
