@@ -1141,6 +1141,22 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
 
   /* ---------- boot ---------- */
   S = load();
+
+  // ?start=YYYY-MM-DDTHH:MM sets the fast start from a link (local time).
+  // Always confirms first — a stale link must never silently clobber a running fast.
+  (function(){
+    var m = /[?&]start=([^&]+)/.exec(location.search);
+    if(!m) return;
+    var ts = new Date(decodeURIComponent(m[1]).replace(/\s+/, "T")).getTime();
+    if(history.replaceState) history.replaceState(null, "", location.pathname);
+    if(isNaN(ts) || ts > Date.now() || Date.now() - ts > 48*H) return;
+    var msg = "공복 시작을 " + dayTag(ts) + clockOf(ts) + "으로 설정할까요?";
+    if(S.startedAt) msg += "\n\n진행 중인 공복(" + dayTag(S.startedAt) + clockOf(S.startedAt) + " 시작)을 덮어씁니다.";
+    if(!confirm(msg)) return;
+    S.startedAt = ts;
+    persist();
+  })();
+
   render(); tick();
   setInterval(tick, 1000);
   document.addEventListener("visibilitychange", function(){ if(!document.hidden){ render(); tick(); } });
