@@ -323,6 +323,28 @@ section{display:flex;flex-direction:column;gap:11px;}
 .logrow .dur{font-family:var(--font-mono);font-size:13.5px;font-variant-numeric:tabular-nums;color:var(--ink-2);}
 .logrow.hit .dur{color:var(--verdigris);font-weight:500;}
 
+/* ---- add-to-home-screen hint ---- */
+.a2hs{
+  position:fixed;left:12px;right:12px;bottom:14px;z-index:20;
+  max-width:412px;margin:0 auto;
+  background:var(--surface);border:1px solid var(--rule-strong);border-radius:8px;
+  padding:13px 14px;box-shadow:var(--shadow);
+  display:flex;gap:11px;align-items:flex-start;
+}
+.a2hs p{margin:0;flex:1;font-size:13px;line-height:1.55;color:var(--ink-2);}
+.a2hs b{color:var(--ink);font-weight:600;}
+.a2hs .shr{vertical-align:-3px;margin:0 1px;}
+.a2hs .x{
+  flex:none;border:0;background:transparent;color:var(--ink-3);
+  font-size:17px;line-height:1;cursor:pointer;padding:2px 3px;
+}
+.a2hs::after{
+  content:"";position:absolute;left:50%;bottom:-7px;transform:translateX(-50%) rotate(45deg);
+  width:12px;height:12px;background:var(--surface);
+  border-right:1px solid var(--rule-strong);border-bottom:1px solid var(--rule-strong);
+}
+body.hinting{padding-bottom:126px;}
+
 /* ---- footer ---- */
 footer{display:flex;flex-direction:column;gap:12px;padding-top:6px;border-top:1px solid var(--rule);}
 details summary{
@@ -1165,6 +1187,36 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
                  "개인정보 보호 브라우징 창이면 일반 창에서 열고, 그래도 같으면 설정 → 사파리 → " +
                  "'모든 쿠키 차단'이 켜져 있는지 확인해 주세요.";
   wrap.insertBefore(el, wrap.firstChild);
+})();
+
+// iOS gives a page no way to install itself, so the most it can do is point
+// at the button. Safari only, not already installed, dismissable once.
+(function(){
+  var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+            (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  var installed = navigator.standalone === true ||
+                  (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+  var hidden = false;
+  try{ hidden = localStorage.getItem("fastchrono.a2hs") === "off"; }catch(e){}
+  if(!iOS || installed || hidden) return;
+
+  var el = document.createElement("div");
+  el.className = "a2hs";
+  el.innerHTML =
+    '<p>홈 화면에 두면 주소창 없이 전체화면으로 열립니다. 아래 ' +
+    '<svg class="shr" width="13" height="15" viewBox="0 0 13 15" fill="none" ' +
+    'stroke="currentColor" stroke-width="1.4" aria-hidden="true">' +
+    '<path d="M6.5 1v8M3.5 3.6 6.5 .8l3 2.8"/>' +
+    '<path d="M2.2 6.4H1v7.4h11V6.4h-1.2"/></svg> ' +
+    '<b>공유</b> → <b>홈 화면에 추가</b></p>' +
+    '<button class="x" type="button" aria-label="안내 닫기">✕</button>';
+  el.querySelector(".x").onclick = function(){
+    try{ localStorage.setItem("fastchrono.a2hs","off"); }catch(e){}
+    el.remove();
+    document.body.classList.remove("hinting");
+  };
+  document.body.appendChild(el);
+  document.body.classList.add("hinting");
 })();
 
 // Offline shell, so the app opens with no signal.
