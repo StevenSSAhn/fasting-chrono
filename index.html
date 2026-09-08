@@ -122,6 +122,61 @@ body{
 .goalpick button+button{border-left:1px solid var(--rule);}
 .goalpick button[aria-pressed="true"]{background:var(--ink);color:var(--ground);}
 
+/* ---- week-at-a-glance dots ---- */
+.week7{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+.d7{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.d7 .lab{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.06em;color:var(--ink-3);}
+.d7 .ring{width:20px;height:20px;border-radius:50%;border:2px solid var(--rule-strong);}
+.d7.hit .ring{background:var(--verdigris);border-color:var(--verdigris);}
+.d7.part .ring{border-color:var(--ink-3);box-shadow:inset 0 0 0 3px var(--rule);}
+.d7.today .lab{color:var(--ink);font-weight:600;}
+.d7.today .ring{border-color:var(--ink-2);}
+.d7.today.hit .ring{border-color:var(--verdigris);}
+
+/* ---- intake meters ---- */
+.meter{display:flex;flex-direction:column;gap:7px;padding:12px 0;border-top:1px solid var(--rule);}
+.meter:last-child{border-bottom:1px solid var(--rule);}
+.mhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+.mname{font-size:14px;font-weight:600;color:var(--ink-2);}
+.mval{font-family:var(--font-mono);font-size:19px;font-weight:400;font-variant-numeric:tabular-nums;color:var(--ink);line-height:1.1;}
+.mval small{font-size:11.5px;font-weight:500;color:var(--ink-3);}
+.mbar{height:6px;border-radius:3px;background:var(--sunken);border:1px solid var(--rule);overflow:hidden;}
+.mbar i{display:block;height:100%;background:var(--ink-2);border-radius:2px;}
+.meter.done .mbar i{background:var(--verdigris);}
+.meter.done .mval{color:var(--verdigris);}
+.mact{display:flex;gap:6px;align-items:center;}
+.mbtn{
+  font-family:var(--font-mono);font-size:12px;font-weight:500;
+  padding:8px 0;flex:1;border:1px solid var(--rule);border-radius:4px;
+  background:transparent;color:var(--ink-2);cursor:pointer;line-height:1.3;
+}
+.mbtn.wide{font-family:var(--font-kr);font-weight:600;}
+.mact input{
+  flex:1.2;min-width:0;font-family:var(--font-mono);font-size:13px;
+  font-variant-numeric:tabular-nums;padding:8px 10px;text-align:center;
+  border:1px solid var(--rule);border-radius:4px;background:var(--surface);color:var(--ink);
+}
+
+/* ---- today's log ---- */
+.tlog{display:flex;flex-direction:column;}
+.tline{
+  display:grid;grid-template-columns:52px 1fr auto;gap:10px;align-items:baseline;
+  padding:9px 0;border-top:1px solid var(--rule);font-size:13px;
+}
+.tlog .tline:last-child{border-bottom:1px solid var(--rule);}
+.tline .tt{font-family:var(--font-mono);font-size:11px;font-variant-numeric:tabular-nums;color:var(--ink-3);}
+.tline .tk{color:var(--ink-2);}
+.tline .tv{font-family:var(--font-mono);font-size:13px;font-variant-numeric:tabular-nums;color:var(--ink);}
+.tline.fastline .tv{color:var(--verdigris);}
+
+.goals{display:flex;gap:10px;margin-top:10px;}
+.goals label{flex:1;display:flex;flex-direction:column;gap:4px;font-family:var(--font-mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);}
+.goals input{
+  font-family:var(--font-mono);font-size:14px;font-variant-numeric:tabular-nums;
+  padding:9px 10px;border:1px solid var(--rule);border-radius:4px;
+  background:var(--surface);color:var(--ink);width:100%;
+}
+
 /* ---- readout ---- */
 .readout{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;}
 .status{
@@ -133,6 +188,7 @@ body{
 .status.is-fasting{color:var(--verdigris);}
 .status.is-eating{color:var(--ember);}
 .status.is-idle{color:var(--ink-3);}
+.status .pct{color:var(--ink-3);letter-spacing:.08em;}
 .clock{
   font-family:var(--font-mono);
   font-weight:200;
@@ -247,6 +303,31 @@ section{display:flex;flex-direction:column;gap:11px;}
 .goalline hr{position:absolute;left:0;right:0;top:0;border:0;border-top:1px dashed var(--rule-strong);margin:0;}
 .goalline span{position:absolute;right:0;top:-14px;font-family:var(--font-mono);font-size:9px;letter-spacing:.08em;color:var(--ink-3);background:var(--ground);padding-left:4px;}
 
+/* ---- weight ---- */
+.wnow{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;}
+.wnow .big{
+  font-family:var(--font-mono);font-size:34px;font-weight:300;line-height:1;
+  font-variant-numeric:tabular-nums;color:var(--ink);letter-spacing:-.02em;
+}
+.wnow .big small{font-size:15px;font-weight:400;color:var(--ink-3);margin-left:2px;letter-spacing:0;}
+.wnow .delta{font-family:var(--font-mono);font-size:12.5px;font-variant-numeric:tabular-nums;color:var(--ink-3);}
+.wnow .delta.dn{color:var(--verdigris);}
+.wnow .delta.up{color:var(--ember);}
+.spark{width:100%;height:76px;display:block;}
+.wmeta{display:flex;justify-content:space-between;gap:10px;}
+.wmeta span{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.08em;color:var(--ink-3);}
+.wlog{display:flex;gap:8px;align-items:center;}
+.wlog input{
+  flex:1;min-width:0;font-family:var(--font-mono);font-size:15px;
+  font-variant-numeric:tabular-nums;padding:11px 12px;
+  border:1px solid var(--rule);border-radius:4px;background:var(--surface);color:var(--ink);
+}
+.wlog button{
+  font-family:var(--font-kr);font-size:14px;font-weight:600;padding:12px 18px;
+  border:0;border-radius:4px;background:var(--ink);color:var(--ground);
+  cursor:pointer;white-space:nowrap;
+}
+
 .empty{font-size:13px;color:var(--ink-3);padding:14px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);}
 .log{display:flex;flex-direction:column;}
 .logrow{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 0;border-top:1px solid var(--rule);font-size:13px;}
@@ -287,8 +368,10 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
     <div class="goalpick" id="goalpick" role="group" aria-label="목표 공복 시간"></div>
   </div>
 
+  <div class="week7" id="week7" aria-label="최근 7일 목표 달성"></div>
+
   <div class="readout">
-    <div class="status" id="status"><span class="dot"></span><span id="statustext">대기 중</span></div>
+    <div class="status" id="status"><span class="dot"></span><span id="statustext">대기 중</span><span class="pct" id="statuspct"></span></div>
     <div class="clock" id="clock">00:00<span class="sec">00</span></div>
     <div class="subline" id="subline"></div>
   </div>
@@ -320,6 +403,29 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
   </div>
 
   <section>
+    <div class="label">오늘 섭취</div>
+    <div class="meter" id="m-water">
+      <div class="mhead"><span class="mname">물</span><span class="mval" id="water-val">—</span></div>
+      <div class="mbar"><i id="water-bar"></i></div>
+      <div class="mact">
+        <button class="mbtn" id="water-minus" aria-label="물 250 밀리리터 빼기">−250</button>
+        <button class="mbtn" id="water-p250" aria-label="물 250 밀리리터 더하기">+250</button>
+        <button class="mbtn" id="water-p500" aria-label="물 500 밀리리터 더하기">+500</button>
+      </div>
+    </div>
+    <div class="meter" id="m-protein">
+      <div class="mhead"><span class="mname">단백질</span><span class="mval" id="prot-val">—</span></div>
+      <div class="mbar"><i id="prot-bar"></i></div>
+      <div class="mact">
+        <input type="number" id="prot-input" step="1" min="1" max="400" inputmode="numeric"
+               placeholder="그램" aria-label="단백질 그램">
+        <button class="mbtn wide" id="prot-add">추가</button>
+        <button class="mbtn" id="prot-undo">되돌리기</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
     <div class="label">대사 단계</div>
     <div class="stages" id="stages"></div>
   </section>
@@ -336,7 +442,35 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
     <div id="logwrap"></div>
   </section>
 
+  <section>
+    <div class="label">체중</div>
+    <div class="wnow">
+      <span class="big" id="w-now">—</span>
+      <span class="delta" id="w-delta"></span>
+    </div>
+    <svg class="spark" id="w-spark" viewBox="0 0 300 76" preserveAspectRatio="none" aria-hidden="true"></svg>
+    <div class="wmeta"><span id="w-left"></span><span id="w-right"></span></div>
+    <div id="w-empty"></div>
+    <div class="wlog">
+      <input type="number" step="0.1" min="20" max="400" inputmode="decimal"
+             id="w-input" placeholder="오늘 체중 (kg)" aria-label="오늘 체중, 킬로그램">
+      <button id="w-save">기록</button>
+    </div>
+  </section>
+
+  <section>
+    <div class="label">오늘 기록</div>
+    <div id="todaylog"></div>
+  </section>
+
   <footer>
+    <details>
+      <summary>목표치 설정</summary>
+      <div class="goals">
+        <label>물 (ml)<input type="number" id="g-water" step="100" min="500" max="8000" inputmode="numeric"></label>
+        <label>단백질 (g)<input type="number" id="g-prot" step="5" min="20" max="400" inputmode="numeric"></label>
+      </div>
+    </details>
     <details>
       <summary>아이폰 홈 화면에 앱으로 설치하기</summary>
       <ol>
@@ -370,7 +504,11 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
   var DOW = ["일","월","화","수","목","금","토"];
 
   /* ---------- state ---------- */
-  function blank(){ return {v:1, goalHours:18, startedAt:null, lastEndedAt:null, history:[], updatedAt:0}; }
+  function blank(){
+    return {v:1, goalHours:18, startedAt:null, lastEndedAt:null,
+            history:[], weights:[], events:[],
+            waterGoal:2600, proteinGoal:125, updatedAt:0};
+  }
   var S = blank();
 
   function load(){
@@ -385,6 +523,14 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
       if(Array.isArray(o.history)) d.history = o.history.filter(function(f){
         return f && typeof f.start === "number" && typeof f.end === "number" && f.end > f.start;
       }).slice(-200);
+      if(Array.isArray(o.weights)) d.weights = o.weights.filter(function(w){
+        return w && typeof w.d === "string" && typeof w.kg === "number" && w.kg > 0;
+      }).slice(-400);
+      if(Array.isArray(o.events)) d.events = o.events.filter(function(e){
+        return e && typeof e.t === "number" && typeof e.k === "string" && typeof e.v === "number";
+      }).slice(-500);
+      if(typeof o.waterGoal === "number" && o.waterGoal > 0) d.waterGoal = o.waterGoal;
+      if(typeof o.proteinGoal === "number" && o.proteinGoal > 0) d.proteinGoal = o.proteinGoal;
       d.updatedAt = typeof o.updatedAt === "number" ? o.updatedAt : 0;
       return d;
     }catch(e){ return blank(); }
@@ -487,8 +633,228 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
       addGhost(sa, "시작 시각 직접 입력", function(){ openEdit(Date.now()); });
     }
 
+    // keep the goal fields in step with state, but never yank them mid-edit
+    var gwEl = document.getElementById("g-water"), gpEl = document.getElementById("g-prot");
+    if(document.activeElement !== gwEl) gwEl.value = S.waterGoal;
+    if(document.activeElement !== gpEl) gpEl.value = S.proteinGoal;
+
+    renderWeek7();
+    renderMeters();
     renderStages();
     renderHistory();
+    renderWeight();
+    renderTodayLog();
+  }
+
+  /* ---------- intake events ---------- */
+  function addEvent(kind, value){
+    S.events.push({t:Date.now(), k:kind, v:value});
+    var cutoff = Date.now() - 14*DAY;
+    S.events = S.events.filter(function(e){ return e.t >= cutoff; }).slice(-500);
+  }
+
+  function todayEvents(){
+    var k = dateKey(Date.now());
+    return S.events.filter(function(e){ return dateKey(e.t) === k; });
+  }
+
+  function todaySum(kind){
+    var n = 0;
+    todayEvents().forEach(function(e){ if(e.k === kind) n += e.v; });
+    return n;
+  }
+
+  function addWater(ml){
+    if(ml < 0 && todaySum("water") + ml < 0) ml = -todaySum("water");
+    if(ml === 0) return;
+    addEvent("water", ml);
+    persist();
+  }
+
+  function addProtein(g){
+    addEvent("protein", g);
+    persist();
+  }
+
+  function undoProtein(){
+    for(var i = S.events.length-1; i >= 0; i--){
+      if(S.events[i].k === "protein" && dateKey(S.events[i].t) === dateKey(Date.now())){
+        S.events.splice(i,1); persist(); return;
+      }
+    }
+  }
+
+  function renderMeters(){
+    function paint(box, valEl, barEl, now, goal, unit, fmt){
+      var pct = goal > 0 ? Math.min(100, now/goal*100) : 0;
+      valEl.innerHTML = fmt(now) + '<small> / ' + fmt(goal) + ' ' + unit + '</small>';
+      barEl.style.width = pct + "%";
+      box.classList.toggle("done", now >= goal && goal > 0);
+    }
+    var kg = function(n){ return n.toLocaleString("ko-KR"); };
+    paint(document.getElementById("m-water"), document.getElementById("water-val"),
+          document.getElementById("water-bar"), todaySum("water"), S.waterGoal, "ml", kg);
+    paint(document.getElementById("m-protein"), document.getElementById("prot-val"),
+          document.getElementById("prot-bar"), todaySum("protein"), S.proteinGoal, "g", kg);
+  }
+
+  /* ---------- week at a glance ---------- */
+  function renderWeek7(){
+    var g = goalMs(), box = document.getElementById("week7");
+    var best = {};
+    S.history.forEach(function(f){
+      var k = dateKey(f.end), d = f.end - f.start;
+      if(!best[k] || d > best[k]) best[k] = d;
+    });
+    // a fast running right now counts toward today as far as it has got
+    if(S.startedAt){
+      var tk = dateKey(Date.now()), live = Date.now() - S.startedAt;
+      if(!best[tk] || live > best[tk]) best[tk] = live;
+    }
+    var today = new Date(); today.setHours(0,0,0,0);
+    box.innerHTML = "";
+    for(var i = 6; i >= 0; i--){
+      var ts = today.getTime() - i*DAY, k = dateKey(ts), d = best[k] || 0;
+      var el = document.createElement("div");
+      el.className = "d7" + (d >= g ? " hit" : (d > 0 ? " part" : "")) + (i === 0 ? " today" : "");
+      el.innerHTML = '<span class="lab">' + DOW[new Date(ts).getDay()] + '</span><span class="ring"></span>';
+      el.title = d ? durText(d) : "기록 없음";
+      box.appendChild(el);
+    }
+  }
+
+  /* ---------- today's log ---------- */
+  function renderTodayLog(){
+    var box = document.getElementById("todaylog");
+    var rows = [];
+    var tk = dateKey(Date.now());
+
+    todayEvents().forEach(function(e){
+      if(e.k === "water")   rows.push({t:e.t, k:"물",     v:(e.v>0?"+":"") + e.v.toLocaleString("ko-KR") + "ml"});
+      if(e.k === "protein") rows.push({t:e.t, k:"단백질", v:"+" + e.v + "g"});
+      if(e.k === "weight")  rows.push({t:e.t, k:"체중",   v:e.v.toFixed(1) + "kg"});
+    });
+    S.history.forEach(function(f){
+      if(dateKey(f.start) === tk) rows.push({t:f.start, k:"공복 시작", v:"", fast:true});
+      if(dateKey(f.end)   === tk) rows.push({t:f.end,   k:"공복 종료", v:durText(f.end - f.start), fast:true});
+    });
+    if(S.startedAt && dateKey(S.startedAt) === tk){
+      rows.push({t:S.startedAt, k:"공복 시작", v:"진행 중", fast:true});
+    }
+    rows.sort(function(a,b){ return b.t - a.t; });
+
+    if(!rows.length){
+      box.innerHTML = '<div class="empty">오늘 기록이 아직 없습니다.</div>';
+      return;
+    }
+    var html = '<div class="tlog">';
+    rows.forEach(function(r){
+      var d = new Date(r.t);
+      html += '<div class="tline' + (r.fast ? " fastline" : "") + '">' +
+              '<span class="tt">' + pad(d.getHours()) + ":" + pad(d.getMinutes()) + '</span>' +
+              '<span class="tk">' + r.k + '</span>' +
+              '<span class="tv">' + r.v + '</span></div>';
+    });
+    box.innerHTML = html + '</div>';
+  }
+
+  /* ---------- weight ---------- */
+  var WDAYS = 30;
+
+  function logWeight(kg){
+    var k = dateKey(Date.now()), found = false;
+    S.weights.forEach(function(w){ if(w.d === k){ w.kg = kg; found = true; } });
+    if(!found) S.weights.push({d:k, kg:kg});
+    S.weights.sort(function(a,b){ return a.d < b.d ? -1 : (a.d > b.d ? 1 : 0); });
+    if(S.weights.length > 400) S.weights = S.weights.slice(-400);
+    addEvent("weight", kg);
+    persist();
+  }
+
+  function renderWeight(){
+    var big = document.getElementById("w-now");
+    var delta = document.getElementById("w-delta");
+    var svg = document.getElementById("w-spark");
+    var left = document.getElementById("w-left");
+    var right = document.getElementById("w-right");
+    var emptyBox = document.getElementById("w-empty");
+    var input = document.getElementById("w-input");
+
+    var byKey = {};
+    S.weights.forEach(function(w){ byKey[w.d] = w.kg; });
+
+    var todayKey = dateKey(Date.now());
+    input.placeholder = byKey[todayKey] != null
+      ? "오늘 " + byKey[todayKey].toFixed(1) + "kg (덮어쓰기)"
+      : "오늘 체중 (kg)";
+
+    if(!S.weights.length){
+      big.textContent = "—";
+      delta.textContent = "";
+      delta.className = "delta";
+      svg.innerHTML = "";
+      svg.style.display = "none";
+      left.textContent = ""; right.textContent = "";
+      emptyBox.innerHTML = '<div class="empty">아직 체중 기록이 없습니다. 아침 기상 직후 공복에 재서 넣으면 여기에 추세가 그려집니다.</div>';
+      return;
+    }
+    emptyBox.innerHTML = "";
+    svg.style.display = "block";
+
+    // one slot per calendar day so gaps stay gaps
+    var today = new Date(); today.setHours(0,0,0,0);
+    var raw = [];
+    for(var i = WDAYS-1; i >= 0; i--){
+      var k = dateKey(today.getTime() - i*DAY);
+      raw.push(byKey[k] != null ? byKey[k] : null);
+    }
+    // trailing 7-day mean: daily weight is noisy, this is the line worth reading
+    var ma = raw.map(function(_, i){
+      var acc = 0, n = 0;
+      for(var j = Math.max(0, i-6); j <= i; j++){ if(raw[j] != null){ acc += raw[j]; n++; } }
+      return n ? acc/n : null;
+    });
+
+    var latest = S.weights[S.weights.length-1].kg;
+    big.innerHTML = latest.toFixed(1) + '<small>kg</small>';
+
+    var cur = ma[WDAYS-1], prev = ma[WDAYS-8];
+    if(cur != null && prev != null){
+      var d = cur - prev;
+      var sign = d > 0 ? "+" : (d < 0 ? "−" : "±");
+      delta.textContent = "전주 대비 " + sign + Math.abs(d).toFixed(1) + "kg";
+      delta.className = "delta " + (d < -0.05 ? "dn" : (d > 0.05 ? "up" : ""));
+    }else{
+      delta.textContent = "전주 대비는 기록이 2주 쌓이면 나옵니다";
+      delta.className = "delta";
+    }
+
+    var vals = [];
+    raw.forEach(function(v){ if(v != null) vals.push(v); });
+    ma.forEach(function(v){ if(v != null) vals.push(v); });
+    var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals);
+    if(hi - lo < 0.8){ var mid = (hi+lo)/2; lo = mid-0.4; hi = mid+0.4; }
+    var padY = (hi-lo)*0.15; lo -= padY; hi += padY;
+
+    function X(i){ return i/(WDAYS-1)*300; }
+    function Y(v){ return 76 - (v-lo)/(hi-lo)*76; }
+    function pathFor(arr){
+      var d = "", pen = false;
+      arr.forEach(function(v, i){
+        if(v == null){ pen = false; return; }
+        d += (pen ? "L" : "M") + X(i).toFixed(1) + " " + Y(v).toFixed(1) + " ";
+        pen = true;
+      });
+      return d.trim();
+    }
+    svg.innerHTML =
+      '<path d="' + pathFor(raw) + '" fill="none" stroke="var(--rule-strong)" stroke-width="1" ' +
+        'stroke-linejoin="round" vector-effect="non-scaling-stroke"/>' +
+      '<path d="' + pathFor(ma) + '" fill="none" stroke="var(--verdigris)" stroke-width="2" ' +
+        'stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>';
+
+    left.textContent = "얇은 선 일별 · 굵은 선 7일 평균";
+    right.textContent = cur != null ? "7일 평균 " + cur.toFixed(1) + "kg" : "최근 30일";
   }
 
   function addGhost(parent, text, fn){
@@ -587,6 +953,7 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
     var stt = document.getElementById("statustext");
     var ck = document.getElementById("clock");
     var sub = document.getElementById("subline");
+    var pctEl = document.getElementById("statuspct");
 
     if(m === "fasting"){
       anchor = S.startedAt;
@@ -594,6 +961,7 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
       var past = elapsed >= g;
       st.className = "status is-fasting";
       stt.textContent = past ? "목표 달성 · 연장 중" : "공복 진행 중";
+      pctEl.textContent = "· " + Math.floor(elapsed/g*100) + "%";
       ck.className = "clock";
       var t = hms(elapsed);
       ck.innerHTML = pad(t.h) + ":" + pad(t.m) + '<span class="sec">' + pad(t.s) + "</span>";
@@ -606,6 +974,7 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
       var leftEat = S.lastEndedAt + w - now;
       st.className = "status is-eating";
       stt.textContent = "섭취 창";
+      pctEl.textContent = "";
       ck.className = "clock";
       var te = hms(leftEat);
       ck.innerHTML = pad(te.h) + ":" + pad(te.m) + '<span class="sec">' + pad(te.s) + "</span>";
@@ -614,6 +983,7 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
       anchor = now;
       st.className = "status is-idle";
       stt.textContent = "대기 중";
+      pctEl.textContent = "";
       ck.className = "clock dim";
       ck.innerHTML = pad(S.goalHours) + ":00" + '<span class="sec">00</span>';
       sub.innerHTML = "지금 시작하면 " + dayTag(now+g) + "<b>" + clockOf(now + g) + "</b>에 해제됩니다";
@@ -725,6 +1095,49 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
     document.getElementById("editrow").classList.remove("open");
     persist();
   };
+
+  function saveWeight(){
+    var input = document.getElementById("w-input");
+    var kg = parseFloat(input.value);
+    if(isNaN(kg) || kg < 20 || kg > 400){ input.focus(); return; }
+    input.value = "";
+    input.blur();
+    logWeight(Math.round(kg*10)/10);
+  }
+  document.getElementById("w-save").onclick = saveWeight;
+  document.getElementById("w-input").addEventListener("keydown", function(e){
+    if(e.key === "Enter"){ e.preventDefault(); saveWeight(); }
+  });
+
+  document.getElementById("water-minus").onclick = function(){ addWater(-250); };
+  document.getElementById("water-p250").onclick  = function(){ addWater(250); };
+  document.getElementById("water-p500").onclick  = function(){ addWater(500); };
+
+  function submitProtein(){
+    var inp = document.getElementById("prot-input");
+    var g = parseInt(inp.value, 10);
+    if(isNaN(g) || g < 1 || g > 400){ inp.focus(); return; }
+    inp.value = ""; inp.blur();
+    addProtein(g);
+  }
+  document.getElementById("prot-add").onclick = submitProtein;
+  document.getElementById("prot-undo").onclick = undoProtein;
+  document.getElementById("prot-input").addEventListener("keydown", function(e){
+    if(e.key === "Enter"){ e.preventDefault(); submitProtein(); }
+  });
+
+  var gw = document.getElementById("g-water"), gp = document.getElementById("g-prot");
+  gw.value = S.waterGoal; gp.value = S.proteinGoal;
+  gw.addEventListener("change", function(){
+    var n = parseInt(gw.value, 10);
+    if(isNaN(n) || n < 500 || n > 8000){ gw.value = S.waterGoal; return; }
+    S.waterGoal = n; persist();
+  });
+  gp.addEventListener("change", function(){
+    var n = parseInt(gp.value, 10);
+    if(isNaN(n) || n < 20 || n > 400){ gp.value = S.proteinGoal; return; }
+    S.proteinGoal = n; persist();
+  });
 
   /* ---------- boot ---------- */
   S = load();
