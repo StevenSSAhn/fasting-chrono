@@ -1054,7 +1054,12 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
       var eh = elapsed/H, cur = STAGES[0];
       STAGES.forEach(function(x){ if(eh >= x.h) cur = x; });
       pill.className = "pill is-fasting";
-      pillT.textContent = (elapsed >= g ? "목표 달성" : cur.nm) + " · " + Math.floor(elapsed/g*100) + "%";
+      // the stage name and the percentage measure different things, so the
+      // percentage has to say what it is a percentage of
+      var pct = Math.floor(elapsed/g*100);
+      pillT.textContent = elapsed >= g
+        ? "목표 달성 · " + pct + "%"
+        : cur.nm + " · 목표 " + pct + "%";
       ak.textContent = "시작";  av.textContent = dayTag(anchor) + clockOf(anchor);
       bk.textContent = "해제";  bv.textContent = dayTag(anchor+g) + clockOf(anchor+g);
     }else if(m === "eating"){
