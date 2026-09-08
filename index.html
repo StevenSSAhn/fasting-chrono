@@ -193,7 +193,7 @@ body{
 .clock{
   font-family:var(--font-mono);
   font-weight:200;
-  font-size:clamp(30px,9vw,39px);
+  font-size:clamp(34px,10.5vw,44px);
   letter-spacing:-.035em;
   line-height:1;
   font-variant-numeric:tabular-nums;
@@ -203,11 +203,9 @@ body{
 .clock .sec{font-size:.46em;font-weight:300;letter-spacing:0;color:var(--ink-3);margin-left:.1em;}
 
 /* ---- 24h dial ---- */
-.dialwrap{position:relative;width:min(300px,80vw);margin:2px auto 0;aspect-ratio:1;}
-.pillrow{display:flex;justify-content:center;margin-top:-12px;}
+.dialwrap{position:relative;width:min(298px,78vw);margin:2px auto 0;aspect-ratio:1;}
 .dial{width:100%;height:100%;display:block;}
-.dial text{font-family:var(--font-mono);font-size:9px;fill:var(--ink-3);}
-.dial text.ampm{font-size:6.5px;letter-spacing:.08em;}
+.dial text{font-family:var(--font-mono);font-size:8.5px;fill:var(--ink-3);}
 .dialface{
   position:absolute;inset:0;display:flex;flex-direction:column;
   align-items:center;justify-content:center;gap:11px;pointer-events:none;
@@ -313,7 +311,7 @@ section{display:flex;flex-direction:column;gap:11px;}
 .wnow .big small{font-size:15px;font-weight:400;color:var(--ink-3);margin-left:2px;letter-spacing:0;}
 .wnow .delta{font-family:var(--font-mono);font-size:12.5px;font-variant-numeric:tabular-nums;color:var(--ink-3);}
 .wnow .delta.dn{color:var(--verdigris);}
-.wnow .delta.up{color:var(--ink-2);}
+.wnow .delta.up{color:var(--ember);}
 .spark{width:100%;height:76px;display:block;}
 .wmeta{display:flex;justify-content:space-between;gap:10px;}
 .wmeta span{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.08em;color:var(--ink-3);}
@@ -397,24 +395,21 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
   <div class="week7" id="week7" aria-label="최근 7일 목표 달성"></div>
 
   <div class="dialwrap">
-    <svg class="dial" viewBox="-14 -14 228 228" aria-hidden="true">
+    <svg class="dial" viewBox="-11 -11 222 222" aria-hidden="true">
       <g fill="none" stroke-linecap="butt">
-        <g id="arc-fast" stroke="var(--verdigris-track)" stroke-width="11"></g>
-        <g id="arc-eat"  stroke="var(--azure-soft)"      stroke-width="11"></g>
-        <g id="arc-fill" stroke="var(--verdigris)"       stroke-width="11"></g>
-        <g id="arc-fil2" stroke="var(--azure)"           stroke-width="11"></g>
+        <path id="arc-fast" stroke="var(--verdigris-track)" stroke-width="13"/>
+        <path id="arc-eat"  stroke="var(--azure-soft)"      stroke-width="13"/>
+        <path id="arc-fill" stroke="var(--verdigris)"       stroke-width="13"/>
+        <path id="arc-fil2" stroke="var(--azure)"           stroke-width="13"/>
         <g id="dial-ticks" stroke="var(--rule-strong)" stroke-width="1.5"></g>
       </g>
       <g id="dial-hours"></g>
-      <circle id="dial-now" r="5" fill="var(--ink)" stroke="var(--ground)" stroke-width="2.5"/>
+      <circle id="dial-now" r="5.5" fill="var(--ink)" stroke="var(--ground)" stroke-width="2.5"/>
     </svg>
     <div class="dialface">
       <div class="clock" id="clock">00:00<span class="sec">00</span></div>
+      <div class="pill" id="stagepill"><span class="pd"></span><span id="stagepill-text">대기 중</span></div>
     </div>
-  </div>
-
-  <div class="pillrow">
-    <div class="pill" id="stagepill"><span class="pd"></span><span id="stagepill-text">대기 중</span></div>
   </div>
 
   <div class="chips">
@@ -640,65 +635,56 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
   }
 
   /* ---------- dial geometry ---------- */
-  // A real 12-hour clock face. An 18h fast is a turn and a half, which one ring
-  // cannot draw without overlapping itself, so the day is split across two:
-  // the outer ring carries 00:00-12:00, the inner ring 12:00-24:00.
-  var R_AM = 82, R_PM = 60;
+  // The face is a 24-hour clock: fraction 0 is midnight at the top, 0.5 noon at
+  // the bottom. Everything is placed by time of day, so a fixed daily routine
+  // puts the eating wedge in the same spot every day.
+  var RING = 78;
 
   function polar(frac, r){
     var a = frac*2*Math.PI - Math.PI/2;
     return [100 + r*Math.cos(a), 100 + r*Math.sin(a)];
   }
 
-  function frac12(ts){                       // position on a 12-hour face
+  function fracOfDay(ts){
     var d = new Date(ts);
-    return ((d.getHours()%12)*3600 + d.getMinutes()*60 + d.getSeconds())/43200;
+    return (d.getHours()*3600 + d.getMinutes()*60 + d.getSeconds())/86400;
   }
-  function ringOf(ts){ return new Date(ts).getHours() >= 12 ? R_PM : R_AM; }
 
   function seg(from, to, r){
-    if(to - from <= 0.0001) return "";
-    if(to - from > 0.9999) to = from + 0.9999;
+    if(to - from <= 0.00001) return "";
+    if(to - from > 0.9999) to = from + 0.9999;   // a full turn is not one arc
     var p0 = polar(from, r), p1 = polar(to, r);
     return "M" + p0[0].toFixed(2) + " " + p0[1].toFixed(2) +
            "A" + r + " " + r + " 0 " + (to - from > 0.5 ? 1 : 0) + " 1 " +
            p1[0].toFixed(2) + " " + p1[1].toFixed(2);
   }
 
-  // Paint a real span, cut at every noon/midnight so each piece lands on the
-  // ring for its half of the day.
-  function paintSpan(el, t0, t1){
-    var d = "", cur = t0, guard = 0;
-    while(cur < t1 && guard++ < 6){
-      var bd = new Date(cur); bd.setMinutes(0,0,0);
-      bd.setHours(new Date(cur).getHours() >= 12 ? 24 : 12);
-      var end = Math.min(t1, bd.getTime());
-      var f1 = (end === bd.getTime()) ? 1 : frac12(end);
-      d += seg(frac12(cur), f1, ringOf(cur)) + " ";
-      cur = end;
-    }
-    d = d.trim();
-    el.innerHTML = d ? '<path d="' + d + '"/>' : "";
+  // `from` is a time-of-day fraction; `len` may run past midnight, so split it
+  function setArc(el, from, len){
+    if(len <= 0){ el.setAttribute("d", ""); return; }
+    from = from - Math.floor(from);
+    if(len > 1) len = 1;
+    el.setAttribute("d", (from + len <= 1)
+      ? seg(from, from + len, RING)
+      : seg(from, 1, RING) + " " + seg(0, from + len - 1, RING));
   }
 
   function renderHourMarks(){
     var out = "";
-    [12, 3, 6, 9].forEach(function(h){
-      var pt = polar((h%12)/12, 105);
-      out += '<text x="' + pt[0].toFixed(1) + '" y="' + pt[1].toFixed(1) +
+    [0, 6, 12, 18].forEach(function(h){
+      var p = polar(h/24, 96);
+      out += '<text x="' + p[0].toFixed(1) + '" y="' + p[1].toFixed(1) +
              '" text-anchor="middle" dominant-baseline="central">' + h + '</text>';
     });
-    out += '<text class="ampm" x="100" y="26" text-anchor="middle" dominant-baseline="central">오전</text>';
-    out += '<text class="ampm" x="100" y="48" text-anchor="middle" dominant-baseline="central">오후</text>';
     document.getElementById("dial-hours").innerHTML = out;
   }
 
+  // metabolic-stage marks sit at the clock position each hour actually falls on
   function renderTicks(anchor){
     var out = "";
     STAGES.forEach(function(st){
       if(st.h <= 0 || st.h >= S.goalHours) return;
-      var ts = anchor + st.h*H, f = frac12(ts), r = ringOf(ts);
-      var a = polar(f, r - 7.5), b = polar(f, r - 10.5);
+      var f = fracOfDay(anchor + st.h*H), a = polar(f, 86), b = polar(f, 93);
       out += '<line x1="' + a[0].toFixed(2) + '" y1="' + a[1].toFixed(2) +
              '" x2="' + b[0].toFixed(2) + '" y2="' + b[1].toFixed(2) + '"/>';
     });
@@ -1090,28 +1076,28 @@ details ol{font-size:12.5px;color:var(--ink-3);line-height:1.7;margin:9px 0 0;pa
       bk.textContent = "해제 예정"; bv.textContent = dayTag(now+g) + clockOf(now+g);
     }
 
-    // ---- dial: real spans painted onto the AM/PM rings ----
-    paintSpan(document.getElementById("arc-fast"), anchor, anchor + g);
-    paintSpan(document.getElementById("arc-eat"), anchor + g, anchor + g + w);
+    // ---- dial: positioned by time of day ----
+    var startF = fracOfDay(anchor), goalF = fracOfDay(anchor + g);
+    setArc(document.getElementById("arc-fast"), startF, g/DAY);
+    setArc(document.getElementById("arc-eat"), goalF, w/DAY);
 
-    if(m === "idle") document.getElementById("arc-fill").innerHTML = "";
-    else paintSpan(document.getElementById("arc-fill"), anchor,
-                   m === "eating" ? anchor + g : Math.min(now, anchor + g));
+    var doneLen = m === "eating" ? g/DAY : Math.min((now - anchor)/DAY, g/DAY);
+    setArc(document.getElementById("arc-fill"), startF, m === "idle" ? 0 : doneLen);
 
     var f2 = document.getElementById("arc-fil2");
     if(m === "eating"){
-      paintSpan(f2, S.lastEndedAt, now);
+      setArc(f2, goalF, (now - S.lastEndedAt)/DAY);
       f2.setAttribute("stroke", "var(--azure)"); f2.setAttribute("opacity", "1");
-    }else if(m === "fasting" && now > anchor + g){
-      paintSpan(f2, anchor + g, now);
+    }else if(m === "fasting" && now - anchor > g){
+      setArc(f2, goalF, (now - anchor - g)/DAY);
       f2.setAttribute("stroke", "var(--verdigris)"); f2.setAttribute("opacity", "0.5");
     }else{
-      f2.innerHTML = "";
+      setArc(f2, 0, 0);
     }
 
     renderTicks(anchor);
 
-    var dot = document.getElementById("dial-now"), np = polar(frac12(now), ringOf(now));
+    var dot = document.getElementById("dial-now"), np = polar(fracOfDay(now), RING);
     dot.setAttribute("cx", np[0].toFixed(2));
     dot.setAttribute("cy", np[1].toFixed(2));
     dot.setAttribute("opacity", m === "idle" ? "0" : "1");
